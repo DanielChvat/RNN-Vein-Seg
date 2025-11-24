@@ -1,14 +1,14 @@
 # RNN Vein Segmentation Model
 
 # File Structure
-```.
+```
+.
 ├── checkpoints
 ├── processed_data
 │   ├── Cube96
 │   ├── ICA
 │   ├── ICA2
 │   └── OA
-├── __pycache__
 ├── raw_data
 │   ├── Cube96
 │   │   ├── imgs
@@ -22,4 +22,5 @@
 │   └── OA
 │       ├── imgs
 │       └── masks
-└── vis_outputs```
+└── vis_outputs
+```
