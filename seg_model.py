@@ -103,10 +103,10 @@ class RNN(nn.Module):
         self.h_prev = h
         h = self.transform(h)
 
-        d1 = F.interpolate(h, scale_factor=2, mode='bilinear', align_corners=False)
+        d1 = F.interpolate(h, scale_factor=2, mode='bicubic', align_corners=False)
         d1 = self.dec1(torch.cat([d1, e2], dim=1))
 
-        d2 = F.interpolate(d1, scale_factor=2, mode='bilinear', align_corners=False)
+        d2 = F.interpolate(d1, scale_factor=2, mode='bicubic', align_corners=False)
         d2 = self.dec2(torch.cat([d2, e1], dim=1))
 
         d3 = self.dec3(d2)

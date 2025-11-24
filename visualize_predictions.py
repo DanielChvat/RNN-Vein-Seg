@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from model import RNN
-from sequence_dataset import SequenceDataset
+from seg_model import RNN
+from dataset import SequenceDataset
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_PATH = "./checkpoints/model_best.pth"
-DATA_PATH = "./processed_data"
+DATA_PATH = "./filtered_data"
 SAVE_OUTPUT = True  
 OUTPUT_DIR = "./vis_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)

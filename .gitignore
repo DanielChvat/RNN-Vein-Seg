@@ -4,3 +4,5 @@ vis_outputs/
 raw_data/
 __pycache__
 .DS_Store
+filtered_data/
+*.pth

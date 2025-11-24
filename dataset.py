@@ -62,4 +62,62 @@ class SequenceDataset(Dataset):
             "seq_name": seq_folder
         }
 
+import os
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+
+class EmptyMaskDataset(Dataset):
+    def __init__(self, root_dir, transform=None):
+        self.samples = []
+        self.transform = transform
+        self.root_dir = root_dir
+
+        self.sequence_names = []
+        self.frame_names = []
+
+        sequence_dirs = sorted(os.listdir(root_dir))
+
+        for seq_name in sequence_dirs:
+            seq_path = os.path.join(root_dir, seq_name)
+
+            if not os.path.isdir(seq_path):
+                continue
+
+            frame_files = sorted([
+                f for f in os.listdir(seq_path)
+                if f.endswith(".npz")
+            ])
+
+            for fname in frame_files:
+                full_path = os.path.join(seq_path, fname)
+
+                data = np.load(full_path)
+                img = data["image"]
+                mask = data["label"]
+
+                if img.ndim == 2:
+                    img = img[None, :, :]
+
+                label = float(mask.sum() == 0)
+
+                self.samples.append((img.astype(np.float32), label))
+
+                self.sequence_names.append(seq_name)
+                self.frame_names.append(fname)
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        img, label = self.samples[idx]
+
+        img = torch.from_numpy(img)
+        img = (img - img.mean()) / (img.std() + 1e-6)
+
+        if self.transform:
+            img = self.transform(img)
+
+        return img, torch.tensor(label, dtype=torch.float32)
+
             

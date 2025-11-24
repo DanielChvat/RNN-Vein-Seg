@@ -1,18 +1,19 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sequence_dataset import SequenceDataset
-from model import RNN
+from dataset import SequenceDataset
+from seg_model import RNN
 from tqdm import tqdm
 import os
 
 from loss import ClassBalancedSoftmaxCE, compute_N_i,dice_loss  # make sure you have these
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-train_dataset = SequenceDataset("./processed_data")
+print(f"Using device: {device}")
+train_dataset = SequenceDataset('./filtered_data')
 
 batch_size = 1
-num_epochs = 15
+num_epochs = 30
 checkpoint_dir = "./checkpoints"
 os.makedirs(checkpoint_dir, exist_ok=True)
 
@@ -37,11 +38,11 @@ criterion = ClassBalancedSoftmaxCE(class_counts)
 
 # Cosine annealing scheduler per batch (T_max in steps)
 steps_per_epoch = len(train_loader)
-scheduler = optim.lr_scheduler.CosineAnnealingLR(
-    optimizer, 
-    T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
-    eta_min=1e-4
-)
+# scheduler = optim.lr_scheduler.CosineAnnealingLR(
+#     optimizer, 
+#     T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
+#     eta_min=1e-4
+# )
 
 best_loss = float('inf')
 
@@ -73,7 +74,7 @@ for epoch in range(num_epochs):
             if (t + 1) % 20 == 0:
                 optimizer.step()
                 optimizer.zero_grad()
-                scheduler.step()
+                # scheduler.step()
                 model.h_prev = model.h_prev.detach()
 
             seq_loss_val += loss.item()
