@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+rm -rf filtered_data
 echo "Begin Preprocessing"
 python preprocess.py
 
