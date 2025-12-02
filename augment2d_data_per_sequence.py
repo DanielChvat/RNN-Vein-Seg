@@ -19,7 +19,7 @@ def get_augmentations(seed):
             border_mode=0,  # reflect/constant ok
             p=1.0
         ),
-        # Elastic deformation (VERY effective in anatomy)
+        # Elastic deformation
         A.ElasticTransform(
             alpha=20,
             sigma=3,
