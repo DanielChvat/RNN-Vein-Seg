@@ -6,7 +6,7 @@ from seg_model import RNN
 from tqdm import tqdm
 import os
 
-from loss import ClassBalancedSoftmaxCE, compute_N_i,dice_loss  # make sure you have these
+from loss import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
@@ -25,8 +25,8 @@ train_loader = torch.utils.data.DataLoader(
     pin_memory=True
 )
 
-model = RNN(in_channels=1, base_channels=16, num_classes=3).to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-1)
+model = RNN(in_channels=1, base_channels=8, num_classes=3).to(device)
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Compute class counts from dataset
 num_classes = 3
@@ -38,11 +38,11 @@ criterion = ClassBalancedSoftmaxCE(class_counts)
 
 # Cosine annealing scheduler per batch (T_max in steps)
 steps_per_epoch = len(train_loader)
-# scheduler = optim.lr_scheduler.CosineAnnealingLR(
-#     optimizer, 
-#     T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
-#     eta_min=1e-4
-# )
+scheduler = optim.lr_scheduler.CosineAnnealingLR(
+    optimizer, 
+    T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
+    eta_min=1e-6
+)
 
 best_loss = float('inf')
 
@@ -65,16 +65,21 @@ for epoch in range(num_epochs):
             # optimizer.zero_grad()
 
             out = model(images[:, t])           # (B, C, H, W)
-            ce_loss = criterion(out, masks[:, t])
-            d_loss = dice_loss(out, masks[:, t])
+            # ce_loss = criterion(out, masks[:, t])
+            # d_loss = dice_loss(out, masks[:, t])
 
-            loss = 0.3 * ce_loss + 0.7 * d_loss
+            ft_loss = focal_tversky_loss(out, masks[:, t])
+            d_loss = dice_loss(out, masks[:, t])
+            
+
+            # loss = 0.3 * ce_loss + 0.7 * d_loss
+            loss = 0.5 * ft_loss + 0.5 * d_loss
             
             loss.backward(retain_graph=True)
             if (t + 1) % 20 == 0:
                 optimizer.step()
                 optimizer.zero_grad()
-                # scheduler.step()
+                scheduler.step()
                 model.h_prev = model.h_prev.detach()
 
             seq_loss_val += loss.item()

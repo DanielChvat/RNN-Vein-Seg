@@ -53,6 +53,9 @@ if __name__ == "__main__":
         "ICA": ("./raw_data/ICA/imgs", "./raw_data/ICA/masks"),
         "ICA2": ("./raw_data/ICA2/imgs", "./raw_data/ICA2/masks"),
         "Cube96": ("./raw_data/Cube96/imgs", "./raw_data/Cube96/masks"),
+        "Cube15": ("./raw_data/Cube15/imgs", "./raw_data/Cube15/masks"),
+        "Cube16": ("./raw_data/Cube16/imgs", "./raw_data/Cube16/masks"),
+        "Cube95": ("./raw_data/Cube95/imgs", "./raw_data/Cube95/masks")
     }
 
     for name, (img_folder, lbl_folder) in datasets.items():

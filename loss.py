@@ -53,3 +53,27 @@ def dice_loss(pred, target, eps=1e-6):
     
     dice = (2. * intersection + eps) / (union + eps)
     return 1.0 - dice.mean()  # Dice loss
+
+def tversky_loss(pred, target, alpha=0.3, beta=0.7, eps=1e-6):
+    """
+    Multi-class Tversky loss
+    pred: (B,C,H,W) logits
+    target: (B,H,W) integer class labels
+    """
+    num_classes = pred.size(1)
+    pred = F.softmax(pred, dim=1)
+
+    target_1hot = F.one_hot(target, num_classes=num_classes).permute(0,3,1,2).float()
+    
+    dims = (0,2,3)
+    tp = (pred * target_1hot).sum(dims)
+    fp = (pred * (1 - target_1hot)).sum(dims)
+    fn = ((1 - pred) * target_1hot).sum(dims)
+
+    tversky = (tp + eps) / (tp + alpha * fp + beta * fn + eps)
+    return 1 - tversky.mean()
+
+
+def focal_tversky_loss(pred, target, alpha=0.2, beta=0.8, gamma=0.85):
+    t = tversky_loss(pred, target, alpha, beta)
+    return t ** gamma

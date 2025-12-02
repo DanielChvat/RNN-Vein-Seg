@@ -62,7 +62,7 @@ def visualize_sequence(images, preds, seq_name):
 def main():
     dataset = SequenceDataset(DATA_PATH)
 
-    model = RNN(in_channels=1, base_channels=16, num_classes=3)
+    model = RNN(in_channels=1, base_channels=8, num_classes=3)
     model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
     model.to(DEVICE)
     model.eval()
@@ -72,6 +72,9 @@ def main():
             sample = dataset[seq_idx]
             images = sample["images"].to(DEVICE)
             seq_name = sample["seq_name"]
+
+            if "AUG" in seq_name:
+                continue
 
             T = images.size(0)
             model.h_prev = None
