@@ -12,18 +12,19 @@ def get_augmentations(seed):
     return A.Compose([
         A.HorizontalFlip(p=1.0),  # Always apply
          # Small smooth geometric distortions
-        A.ShiftScaleRotate(
-            shift_limit=0.05,
-            scale_limit=0.10,
-            rotate_limit=10,
-            border_mode=0,  # reflect/constant ok
+        
+        A.Affine(
+            scale=(0.9, 1.1),
+            translate_percent=(0.0, 0.05),
+            rotate=(-10, 10),
+            fit_output=False,
             p=1.0
         ),
         # Elastic deformation
         A.ElasticTransform(
             alpha=20,
             sigma=3,
-            alpha_affine=10,
+            approximate=True,
             p=1.0
         ),
         # Intensity transforms
@@ -33,7 +34,14 @@ def get_augmentations(seed):
             p=1.0
         ),
         A.RandomGamma(gamma_limit=(80, 120), p=1.0),
-        A.GaussianNoise(var_limit=(5, 25), p=1.0),
+        A.GaussNoise(
+            std_range=(0.01, 0.05),
+            mean_range=(0, 0),
+            per_channel=False,
+            noise_scale_factor=1.0,
+            p=1.0
+        ),
+
         # Local histogram equalization
         A.CLAHE(clip_limit=2.0, p=1.0),
     ], additional_targets={'mask': 'mask'}, seed=seed)  # Set seed for reproducibility

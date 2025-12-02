@@ -11,6 +11,9 @@ python train_empty_detector.py
 echo "Filter Empty Mask Images"
 python filter_empty_images.py
 
+echo "Augment Data Sequences"
+python augment2d_data_per_sequence.py
+
 echo "Preprocessing Finished"
 rm -rf processed_data
 rm -rf __pycache__
