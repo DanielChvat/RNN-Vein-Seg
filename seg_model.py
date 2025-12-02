@@ -1,18 +1,19 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, Tuple
 
 class ConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, num_groups=8):
         super().__init__()
 
         self.block = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, padding=1, bias=True),
-            nn.BatchNorm2d(out_channels),
+            nn.GroupNorm(num_groups=min(num_groups, out_channels), 
+                         num_channels=out_channels),
             nn.ReLU(),
             nn.Conv2d(out_channels, out_channels, 3, padding=1, bias=True),
-            nn.BatchNorm2d(out_channels),
+            nn.GroupNorm(num_groups=min(num_groups, out_channels),
+                         num_channels=out_channels),
             nn.ReLU()
         )
 

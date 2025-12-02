@@ -25,7 +25,7 @@ train_loader = torch.utils.data.DataLoader(
     pin_memory=True
 )
 
-model = RNN(in_channels=1, base_channels=16, num_classes=3).to(device)
+model = RNN(in_channels=1, base_channels=8, num_classes=3).to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Compute class counts from dataset
@@ -41,7 +41,7 @@ steps_per_epoch = len(train_loader)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(
     optimizer, 
     T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
-    eta_min=0
+    eta_min=1e-6
 )
 
 best_loss = float('inf')
@@ -73,7 +73,7 @@ for epoch in range(num_epochs):
             
 
             # loss = 0.3 * ce_loss + 0.7 * d_loss
-            loss = 0.7 * ft_loss + 0.3 * d_loss
+            loss = 0.5 * ft_loss + 0.5 * d_loss
             
             loss.backward(retain_graph=True)
             if (t + 1) % 20 == 0:
