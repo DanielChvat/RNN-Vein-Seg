@@ -40,8 +40,8 @@ criterion = ClassBalancedSoftmaxCE(class_counts)
 steps_per_epoch = len(train_loader)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(
     optimizer, 
-    T_max=(num_epochs * steps_per_epoch) // 5,  # step per image
-    eta_min=1e-6
+    T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
+    eta_min=0
 )
 
 best_loss = float('inf')
@@ -76,7 +76,7 @@ for epoch in range(num_epochs):
             loss = 0.7 * ft_loss + 0.3 * d_loss
             
             loss.backward(retain_graph=True)
-            if (t + 1) % 5 == 0:
+            if (t + 1) % 20 == 0:
                 optimizer.step()
                 optimizer.zero_grad()
                 scheduler.step()

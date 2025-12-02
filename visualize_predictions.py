@@ -73,6 +73,9 @@ def main():
             images = sample["images"].to(DEVICE)
             seq_name = sample["seq_name"]
 
+            if "AUG" in seq_name:
+                continue
+
             T = images.size(0)
             model.h_prev = None
 

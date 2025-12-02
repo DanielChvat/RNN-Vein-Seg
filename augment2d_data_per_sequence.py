@@ -9,56 +9,60 @@ def get_random_seed():
 
 # Define your 2D augmentations
 def get_augmentations(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
     return A.Compose([
-        A.HorizontalFlip(p=1.0),  # Always apply
-         # Small smooth geometric distortions
-        
+        A.HorizontalFlip(p=0.5),
+
         A.Affine(
-            scale=(0.9, 1.1),
-            translate_percent=(0.0, 0.05),
-            rotate=(-10, 10),
+            scale=(0.97, 1.03),
+            translate_percent=(0.0, 0.02),
+            rotate=(-4, 4),
             fit_output=False,
-            p=1.0
+            p=1
         ),
-        # Elastic deformation
+
         A.ElasticTransform(
-            alpha=20,
+            alpha=5,
             sigma=3,
             approximate=True,
-            p=1.0
+            p=1
         ),
-        # Intensity transforms
+
         A.RandomBrightnessContrast(
-            brightness_limit=0.15,
-            contrast_limit=0.15,
-            p=1.0
+            brightness_limit=0.05,
+            contrast_limit=0.05,
+            p=1
         ),
-        A.RandomGamma(gamma_limit=(80, 120), p=1.0),
+
+        A.ColorJitter(
+            brightness=0.05,
+            contrast=0.05,
+            saturation=0,
+            hue=0,
+            p=1
+        ),
+
         A.GaussNoise(
-            std_range=(0.01, 0.05),
+            std_range=(0.002, 0.01),   # MUCH smaller
             mean_range=(0, 0),
             per_channel=False,
             noise_scale_factor=1.0,
-            p=1.0
+            p=1
         ),
 
-        # Local histogram equalization
-        A.CLAHE(clip_limit=2.0, p=1.0),
-    ], additional_targets={'mask': 'mask'}, seed=seed)  # Set seed for reproducibility
+    ], additional_targets={'mask': 'mask'}, seed=seed)
 
 def augment_npz_volume(npz_folder, out_folder):
     os.makedirs(out_folder, exist_ok=True)
 
-    # Get all .npz files in the folder
     npz_files = sorted([f for f in os.listdir(npz_folder) if f.endswith(".npz")])
 
-    # Generate a random seed for the augmentations
     seed = get_random_seed()
 
-    # Get the augmentations with the random seed
     augment = get_augmentations(seed)
 
-    # Apply the same transform to every slice
     for npz_f in npz_files:
         path = os.path.join(npz_folder, npz_f)
         data = np.load(path)
@@ -77,10 +81,17 @@ def augment_npz_volume(npz_folder, out_folder):
 
 if __name__ == "__main__":
     ROOT = "./filtered_data"
+
     DATASETS = ["OA", "ICA", "ICA2", "Cube96", "Cube15", "Cube95", "Cube16"]
+    NUM_AUGMENTS = 5   # number of extra augmented datasets you want
 
     for name in DATASETS:
-        print(f"Augmenting volume (2D consistent) for: {name}")
+        print(f"=== Augmenting: {name} ===")
+
         npz_dir = os.path.join(ROOT, name)
-        out_dir = os.path.join(ROOT, f"{name}_AUG")
-        augment_npz_volume(npz_dir, out_dir)
+
+        # Make K augmented copies
+        for i in range(1, NUM_AUGMENTS + 1):
+            out_dir = os.path.join(ROOT, f"{name}_AUG_{i:03d}")
+            print(f" → Generating augmented dataset #{i}: {out_dir}")
+            augment_npz_volume(npz_dir, out_dir)
