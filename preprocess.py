@@ -2,7 +2,16 @@ from PIL import Image
 import os
 import numpy as np
 
-TARGET_SIZE = (224, 224)
+ORIGINAL_SIZE = (1024, 512)
+WATERMARK_H = 150
+WATERMARK_W = 200
+
+DOWNSCALE_FACTOR = 1
+TARGET_SIZE = (
+    ORIGINAL_SIZE[0] // DOWNSCALE_FACTOR,   # H_out
+    ORIGINAL_SIZE[1] // DOWNSCALE_FACTOR    # W_out
+)
+
 
 def resize_to_target_size(img_array: np.ndarray, target_size=TARGET_SIZE, is_label=False):
     """Resizes a 2D array to the target size using interpolation."""
@@ -18,10 +27,9 @@ def resize_to_target_size(img_array: np.ndarray, target_size=TARGET_SIZE, is_lab
 
 def create_npz_slices(img_folder: str, label_folder: str, output_folder: str, prefix: str):
     """
-    Loads image/label slices, resizes them, normalizes image slices,
-    and saves each pair as an .npz file: {image, label}.
+    Loads image/label slices, removes watermark, resizes to scaled 512x1024 multiple,
+    normalizes image slices, and saves pairs as compressed .npz files.
     """
-
     os.makedirs(output_folder, exist_ok=True)
 
     img_paths = sorted([os.path.join(img_folder, f) for f in os.listdir(img_folder)])
@@ -31,11 +39,14 @@ def create_npz_slices(img_folder: str, label_folder: str, output_folder: str, pr
 
     for idx, (img_p, lbl_p) in enumerate(zip(img_paths, lbl_paths)):
 
-        # Load + resize
-        img = resize_to_target_size(np.array(Image.open(img_p), dtype=np.float32), is_label=False)
-        lbl = resize_to_target_size(np.array(Image.open(lbl_p), dtype=np.float32), is_label=True)
+        img_raw = np.array(Image.open(img_p), dtype=np.float32)
+        lbl_raw = np.array(Image.open(lbl_p), dtype=np.float32)
 
-        # Clip & normalize image slice
+        img_raw[:WATERMARK_H, :WATERMARK_W] = 0
+
+        img = resize_to_target_size(img_raw, TARGET_SIZE, is_label=False)
+        lbl = resize_to_target_size(lbl_raw, TARGET_SIZE, is_label=True)
+
         img = np.clip(img, -125, 275)
         min_v, max_v = img.min(), img.max()
         img = (img - min_v) / (max_v - min_v + 1e-8)

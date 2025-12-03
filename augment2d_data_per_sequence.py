@@ -45,7 +45,7 @@ def get_augmentations(seed):
         ),
 
         A.GaussNoise(
-            std_range=(0.002, 0.01),   # MUCH smaller
+            std_range=(0.002, 0.01),
             mean_range=(0, 0),
             per_channel=False,
             noise_scale_factor=1.0,
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     ROOT = "./filtered_data"
 
     DATASETS = ["OA", "ICA", "ICA2", "Cube96", "Cube15", "Cube95", "Cube16"]
-    NUM_AUGMENTS = 5   # number of extra augmented datasets you want
+    NUM_AUGMENTS = 5
 
     for name in DATASETS:
         print(f"=== Augmenting: {name} ===")

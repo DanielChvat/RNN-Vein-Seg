@@ -64,7 +64,7 @@ for epoch in range(num_epochs):
         for t in range(T):
             # optimizer.zero_grad()
 
-            out = model(images[:, t])           # (B, C, H, W)
+            out = model(images[:, t], t)           # (B, C, H, W)
             # ce_loss = criterion(out, masks[:, t])
             # d_loss = dice_loss(out, masks[:, t])
 

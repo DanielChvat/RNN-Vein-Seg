@@ -1,5 +1,15 @@
 import torch
 import torch.nn as nn
+ORIGINAL_SIZE = (1024, 512)
+DOWNSCALE_FACTOR = 1
+PREPROCESSED_SIZE = (
+    ORIGINAL_SIZE[0] // DOWNSCALE_FACTOR,   
+    ORIGINAL_SIZE[1] // DOWNSCALE_FACTOR   
+)
+
+FEATURE_SIZE = (torch.tensor(PREPROCESSED_SIZE) // 8)
+FLATTEN_DIM = 64 * FEATURE_SIZE[0] * FEATURE_SIZE[1]
+
 
 class EmpyMaskCNN(nn.Module):
     def __init__(self):
@@ -21,7 +31,7 @@ class EmpyMaskCNN(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64*28**2, 128),
+            nn.Linear(FLATTEN_DIM, 128),
             nn.ReLU(inplace=True),
             nn.Linear(128, 1)
         )

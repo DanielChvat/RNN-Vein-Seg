@@ -22,29 +22,34 @@ COLORS = np.array([
 
 
 def mask_to_rgb(mask):
-    """
-    mask: (H,W) tensor of class indices
-    returns (H,W,3) RGB numpy array
-    """
     mask_np = mask.cpu().numpy().astype(np.uint8)
     return COLORS[mask_np]
 
+def overlay_mask_on_image(img, mask_rgb, alpha=0.5):
+    img_rgb = np.stack([img,img,img], axis=-1)
+    img_rgb = (img_rgb * 255).astype(np.uint8)
 
-def visualize_sequence(images, preds, seq_name):
+    blended = (alpha * mask_rgb + (1 - alpha) * img_rgb).astype(np.uint8)
+    return blended
+
+
+def visualize_sequence(images, preds, gts, seq_name):
     T = images.size(0)
 
     for t in range(T):
         img = images[t, 0].cpu().numpy()
         pred = preds[t]
+        gt_rgb = gts[t]
+        gt_overlay = overlay_mask_on_image(img, gt_rgb)
 
-        plt.figure(figsize=(10,4))
+        plt.figure(figsize=(10, 5), dpi=150)
 
-        plt.subplot(1,2,1)
-        plt.title("Image")
-        plt.imshow(img, cmap="gray")
+        plt.subplot(1, 2, 1)
+        plt.title("GT Overlay")
+        plt.imshow(gt_overlay)
         plt.axis("off")
 
-        plt.subplot(1,2,2)
+        plt.subplot(1, 2, 2)
         plt.title("Predicted Mask")
         plt.imshow(pred)
         plt.axis("off")
@@ -56,8 +61,6 @@ def visualize_sequence(images, preds, seq_name):
             plt.close()
         else:
             plt.show()
-
-
 
 def main():
     dataset = SequenceDataset(DATA_PATH)
@@ -71,6 +74,7 @@ def main():
         for seq_idx in range(len(dataset)):
             sample = dataset[seq_idx]
             images = sample["images"].to(DEVICE)
+            masks = sample["masks"].to(DEVICE)
             seq_name = sample["seq_name"]
 
             if "AUG" in seq_name:
@@ -80,17 +84,22 @@ def main():
             model.h_prev = None
 
             preds_rgb = []
+            gts_rgb = []
 
             for t in range(T):
                 print(f"Sequence: {seq_name}, Frame: {t}")
-                out = model(images[t].unsqueeze(0))
+                out = model(images[t].unsqueeze(0), t_idx=t)
                 pred_class = out.argmax(dim=1)[0]
                 print(f"Unique predicted classes: {torch.unique(pred_class)}")
+
                 pred_rgb = mask_to_rgb(pred_class)
                 preds_rgb.append(pred_rgb)
 
-            # Visualize or save
-            visualize_sequence(images, preds_rgb, seq_name)
+                gt_rgb = mask_to_rgb(masks[t])
+                gts_rgb.append(gt_rgb)
+                
+
+            visualize_sequence(images, preds_rgb, gts_rgb, seq_name)
 
             print(f"Sequence {seq_name} done.\n")
 

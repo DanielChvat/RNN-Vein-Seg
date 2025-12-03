@@ -77,3 +77,4 @@ def tversky_loss(pred, target, alpha=0.3, beta=0.7, eps=1e-6):
 def focal_tversky_loss(pred, target, alpha=0.2, beta=0.8, gamma=0.85):
     t = tversky_loss(pred, target, alpha, beta)
     return t ** gamma
+
