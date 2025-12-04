@@ -13,12 +13,12 @@ def get_augmentations(seed):
     np.random.seed(seed)
 
     return A.Compose([
-        A.HorizontalFlip(p=0.5),
+        A.HorizontalFlip(p=1),
 
         A.Affine(
             scale=(0.9, 1.0),
             translate_percent=(0.0, 0.05),
-            rotate=(-4, 4),
+            rotate=0,
             fit_output=False,
             p=1
         ),
