@@ -10,7 +10,7 @@ from loss import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
-train_dataset = SequenceDataset('./filtered_data')
+train_dataset = SequenceDataset('./filtered_data_augmented')
 
 batch_size = 1
 num_epochs = 30
@@ -68,12 +68,18 @@ for epoch in range(num_epochs):
             # ce_loss = criterion(out, masks[:, t])
             # d_loss = dice_loss(out, masks[:, t])
 
+            class_weights = 1.0 / (class_counts.float() + 1e-6)
+            class_weights = class_weights / class_weights.sum() * num_classes
+            class_weights = class_weights.to(device)
+            criterion_wce = nn.CrossEntropyLoss(weight=class_weights)
+
             ft_loss = focal_tversky_loss(out, masks[:, t])
             d_loss = dice_loss(out, masks[:, t])
+            wce_loss = criterion_wce(out, masks[:, t])
             
 
             # loss = 0.3 * ce_loss + 0.7 * d_loss
-            loss = 0.5 * ft_loss + 0.5 * d_loss
+            loss = 0.15 * wce_loss + 0.2 * ft_loss + 0.25 * d_loss
             
             loss.backward(retain_graph=True)
             if (t + 1) % 20 == 0:
