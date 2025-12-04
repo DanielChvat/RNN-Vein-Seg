@@ -1,104 +1,219 @@
+import os
+import re
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import Subset, DataLoader
+from torch.amp import GradScaler, autocast
+from tqdm import tqdm
+
 from dataset import SequenceDataset
 from seg_model import RNN
-from tqdm import tqdm
-import os
+from loss import focal_tversky_loss, dice_loss, ClassBalancedSoftmaxCE, compute_N_i
 
-from loss import *
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# ============================================================
+#                  DEVICE + PATHS
+# ============================================================
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
-train_dataset = SequenceDataset('./filtered_data')
 
-batch_size = 1
-num_epochs = 30
-checkpoint_dir = "./checkpoints"
-os.makedirs(checkpoint_dir, exist_ok=True)
+ROOT = "./filtered_data"
+CHECKPOINT_DIR = "./checkpoints"
+os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 
-train_loader = torch.utils.data.DataLoader(
+# ============================================================
+#     1. GROUP SEQUENCES (Cube15, Cube16, OA, OA_AUGNNN, etc)
+# ============================================================
+
+def base_name(name):
+    """Remove _AUG_xxx suffix to find the root sequence name."""
+    return re.sub(r"_AUG_\d+$", "", name)
+
+
+all_folders = sorted(d for d in os.listdir(ROOT) if os.path.isdir(os.path.join(ROOT, d)))
+groups = {}
+
+for folder in all_folders:
+    bn = base_name(folder)
+    groups.setdefault(bn, []).append(folder)
+
+print("\nDiscovered groups:")
+for g, members in groups.items():
+    print(f"  {g}: {members}")
+
+
+# ============================================================
+#     2. PICK VALIDATION GROUPS (holds out entire sequences)
+# ============================================================
+
+VAL_GROUPS = ["Cube15"]      # <<--- HOLD OUT THIS WHOLE GROUP FOR VALIDATION
+TRAIN_GROUPS = [g for g in groups if g not in VAL_GROUPS]
+
+train_folders = []
+val_folders = []
+
+for g in TRAIN_GROUPS:
+    train_folders.extend(groups[g])
+
+for g in VAL_GROUPS:
+    val_folders.extend(groups[g])
+
+print("\nTrain groups:", TRAIN_GROUPS)
+print("Val groups:  ", VAL_GROUPS)
+print("Train folders:", train_folders)
+print("Val folders:  ", val_folders)
+
+
+# ============================================================
+#     3. LOAD DATASET AND CREATE SUBSETS
+# ============================================================
+
+full_dataset = SequenceDataset(ROOT)
+seq_names = full_dataset.sequence_dirs
+
+train_indices = [i for i, name in enumerate(seq_names) if name in train_folders]
+val_indices   = [i for i, name in enumerate(seq_names) if name in val_folders]
+
+train_dataset = Subset(full_dataset, train_indices)
+val_dataset   = Subset(full_dataset, val_indices)
+
+print(f"\nFinal Train sequences: {len(train_dataset)}")
+print(f"Final Val sequences:   {len(val_dataset)}\n")
+
+
+# ============================================================
+#     4. DATA LOADERS
+# ============================================================
+
+train_loader = DataLoader(
     train_dataset,
-    batch_size=batch_size,
+    batch_size=1,
     shuffle=True,
     num_workers=4,
     pin_memory=True
 )
 
-model = RNN(in_channels=1, base_channels=8, num_classes=3).to(device)
+val_loader = DataLoader(
+    val_dataset,
+    batch_size=1,
+    shuffle=False,
+    num_workers=4,
+    pin_memory=True
+)
+
+
+# ============================================================
+#     5. MODEL + LOSSES + OPTIMIZER
+# ============================================================
+
+model = RNN(in_channels=1, base_channels=32, num_classes=3).to(device)
+
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-# Compute class counts from dataset
-num_classes = 3
-class_counts = compute_N_i(train_loader, num_classes=num_classes)
-print(f"Class counts: {class_counts}")
+# Class-balancing (computed from TRAIN ONLY)
+class_counts = compute_N_i(train_loader, num_classes=3)
+print("Class counts:", class_counts)
+criterion_ce = ClassBalancedSoftmaxCE(class_counts)
 
-# Initialize ClassBalancedSoftmaxCE loss
-criterion = ClassBalancedSoftmaxCE(class_counts)
-
-# Cosine annealing scheduler per batch (T_max in steps)
-steps_per_epoch = len(train_loader)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(
-    optimizer, 
-    T_max=(num_epochs * steps_per_epoch) // 20,  # step per image
+    optimizer,
+    T_max=30 * len(train_loader),
     eta_min=1e-6
 )
 
-best_loss = float('inf')
+scaler = GradScaler(device="cuda")
 
-for epoch in range(num_epochs):
+best_val_loss = float("inf")
+
+
+# ============================================================
+#     6. TRAINING + VALIDATION LOOP
+# ============================================================
+
+num_epochs = 30
+
+for epoch in range(1, num_epochs + 1):
+
+    # ------------------------------------------------------------
+    #                     TRAINING
+    # ------------------------------------------------------------
     model.train()
-    epoch_loss = 0.0
-
-    pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{num_epochs}", ncols=100)
+    train_loss = 0.0
+    pbar = tqdm(train_loader, desc=f"Train Epoch {epoch}", ncols=120)
 
     for batch in pbar:
-        images = batch["images"].to(device)  # (B, T, C, H, W)
-        masks = batch["masks"].to(device)    # (B, T, H, W)
+        images = batch["images"].to(device)  # B=1, T,C,H,W
+        masks  = batch["masks"].to(device)
 
-        T = images.size(1)
+        T = images.shape[1]
+
         model.h_prev = None
+        optimizer.zero_grad(set_to_none=True)
 
-        seq_loss_val = 0.0
+        seq_loss = 0.0
 
-        for t in range(T):
-            # optimizer.zero_grad()
+        with autocast(device_type="cuda"):
+            for t in range(T):
+                out = model(images[:, t], t_idx=t)
 
-            out = model(images[:, t], t)           # (B, C, H, W)
-            # ce_loss = criterion(out, masks[:, t])
-            # d_loss = dice_loss(out, masks[:, t])
+                ce = criterion_ce(out, masks[:, t])
+                ft = focal_tversky_loss(out, masks[:, t])
+                di = dice_loss(out, masks[:, t])
 
-            ft_loss = focal_tversky_loss(out, masks[:, t])
-            d_loss = dice_loss(out, masks[:, t])
-            
+                loss = 0.2*ft + 0.8*di
+                seq_loss += loss
 
-            # loss = 0.3 * ce_loss + 0.7 * d_loss
-            loss = 0.5 * ft_loss + 0.5 * d_loss
-            
-            loss.backward(retain_graph=True)
-            if (t + 1) % 20 == 0:
-                optimizer.step()
-                optimizer.zero_grad()
-                scheduler.step()
-                model.h_prev = model.h_prev.detach()
+        seq_loss = seq_loss / T
 
-            seq_loss_val += loss.item()
+        scaler.scale(seq_loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+        scheduler.step()
 
-        seq_loss_val /= T
-        epoch_loss += seq_loss_val
-        pbar.set_postfix({"loss": seq_loss_val})
+        if model.h_prev is not None:
+            model.h_prev = model.h_prev.detach()
 
-    avg_epoch_loss = epoch_loss / len(train_loader)
-    print(f"Epoch {epoch+1} average loss: {avg_epoch_loss:.4f}")
+        train_loss += seq_loss.item()
+        pbar.set_postfix({"loss": seq_loss.item()})
 
-    # Save per-epoch checkpoint
-    checkpoint_path = os.path.join(checkpoint_dir, f"model_epoch{epoch+1}.pth")
-    torch.save(model.state_dict(), checkpoint_path)
-    print(f"Saved checkpoint: {checkpoint_path}")
+    avg_train = train_loss / len(train_loader)
+    print(f"Epoch {epoch} Train Loss: {avg_train:.4f}")
 
-    # Save best model
-    if avg_epoch_loss < best_loss:
-        best_loss = avg_epoch_loss
-        best_model_path = os.path.join(checkpoint_dir, "model_best.pth")
-        torch.save(model.state_dict(), best_model_path)
-        print(f"Saved best model: {best_model_path}")
+
+    # ------------------------------------------------------------
+    #                     VALIDATION
+    # ------------------------------------------------------------
+    model.eval()
+    val_loss = 0.0
+
+    with torch.no_grad(), autocast(device_type="cuda"):
+        for batch in val_loader:
+            images = batch["images"].to(device)
+            masks  = batch["masks"].to(device)
+            T = images.shape[1]
+
+            model.h_prev = None
+            seq_loss = 0.0
+
+            for t in range(T):
+                out = model(images[:, t], t_idx=t)
+                ft = focal_tversky_loss(out, masks[:, t])
+                di = dice_loss(out, masks[:, t])
+                seq_loss += 0.2*ft + 0.8*di
+
+            seq_loss = seq_loss / T
+            val_loss += seq_loss.item()
+
+    avg_val = val_loss / len(val_loader)
+    print(f"Epoch {epoch} VAL Loss: {avg_val:.4f}")
+
+    # ------------------------------------------------------------
+    #           SAVE CHECKPOINTS (BEST VAL LOSS)
+    # ------------------------------------------------------------
+    torch.save(model.state_dict(), f"{CHECKPOINT_DIR}/model_epoch{epoch}.pth")
+
+    if avg_val < best_val_loss:
+        best_val_loss = avg_val
+        print(">> Saving BEST model!")
+        torch.save(model.state_dict(), f"{CHECKPOINT_DIR}/model_best.pth")
