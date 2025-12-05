@@ -17,6 +17,9 @@ def get_augmentations(seed):
             scale=(0.9, 1.0),
             translate_percent=(0.0, 0.05),
             rotate=0,
+            scale=(0.9, 1.0),
+            translate_percent=(0.0, 0.05),
+            rotate=0,
             fit_output=False,
             p=1
         ),
@@ -31,10 +34,14 @@ def get_augmentations(seed):
         A.RandomBrightnessContrast(
             brightness_limit=0.1,
             contrast_limit=0.1,
+            brightness_limit=0.1,
+            contrast_limit=0.1,
             p=1
         ),
 
         A.ColorJitter(
+            brightness=0.1,
+            contrast=0.1,
             brightness=0.1,
             contrast=0.1,
             saturation=0,
@@ -80,6 +87,7 @@ def augment_npz_volume(npz_folder, out_folder):
 if __name__ == "__main__":
     ROOT = "./filtered_data"
     OUT_ROOT = "./filtered_data_augmented"
+    OUT_ROOT = "./filtered_data_augmented"
 
     DATASETS = ["OA", "ICA", "ICA2", "Cube96", "Cube15", "Cube95", "Cube16", "Cube24"]
     NUM_AUGMENTS = 5
@@ -91,6 +99,7 @@ if __name__ == "__main__":
 
         # Make K augmented copies
         for i in range(1, NUM_AUGMENTS + 1):
+            out_dir = os.path.join(OUT_ROOT, f"{name}_AUG_{i}")
             out_dir = os.path.join(OUT_ROOT, f"{name}_AUG_{i}")
             print(f" → Generating augmented dataset #{i}: {out_dir}")
             augment_npz_volume(npz_dir, out_dir)
