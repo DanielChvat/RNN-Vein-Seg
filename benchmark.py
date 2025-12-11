@@ -7,7 +7,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_PATH = "./checkpoints/model_best.pth"
 ROOT_DIR = "./filtered_data"
 
-model = RNN(in_channels=1, base_channels=8, num_classes=3).to(DEVICE)
+model = RNN(in_channels=1, base_channels=32, num_classes=3).to(DEVICE)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model.to(DEVICE)
 model.eval()
