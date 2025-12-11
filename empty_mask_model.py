@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 ORIGINAL_SIZE = (1024, 512)
-DOWNSCALE_FACTOR = 4
+DOWNSCALE_FACTOR = 4 # changed this from 4 to 1 for original size images
 PREPROCESSED_SIZE = (
     ORIGINAL_SIZE[0] // DOWNSCALE_FACTOR,   
     ORIGINAL_SIZE[1] // DOWNSCALE_FACTOR   

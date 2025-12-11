@@ -63,9 +63,9 @@ for folder in all_folders:
     bn = base_name(folder)
     groups.setdefault(bn, []).append(folder)
 
-print("\nDiscovered groups:")
-for g, members in groups.items():
-    print(f"  {g}: {members}")
+    print("\nDiscovered groups:")
+    for g, members in groups.items():
+        print(f"  {g}: {members}")
 
 TRAIN_GROUPS = [g for g in groups if g not in VAL_GROUPS]
 
@@ -270,10 +270,29 @@ for epoch in range(1, NUM_EPOCHS + 1):
         masks  = batch["masks"].to(device)
         T = images.shape[1]
 
-        model.h_prev = None
-        optimizer.zero_grad(set_to_none=True)
+            model.h_prev = None
+            optimizer.zero_grad(set_to_none=True)
+            
+            running_seq_loss = 0.0  # for logging only
 
-        seq_loss = 0.0
+            # seq_loss = 0.0
+
+            # with autocast(device_type="cuda"):
+            #     for t in range(T):
+            #         out = model(images[:, t], t_idx=t)
+
+            #         ce = criterion_ce(out, masks[:, t])
+            #         ft = focal_tversky_loss(out, masks[:, t])
+            #         di = dice_loss(out, masks[:, t])
+
+            #         loss = 0.2*ft + 0.8*di
+            #         seq_loss += loss
+
+            # seq_loss = seq_loss / T
+
+            # scaler.scale(seq_loss).backward()
+            # scaler.step(optimizer)
+            # scaler.update()
 
         # For (cheap) train dice: compute on first frame only
         pred_first = None
@@ -307,8 +326,8 @@ for epoch in range(1, NUM_EPOCHS + 1):
 
         scheduler.step()
 
-        if model.h_prev is not None:
-            model.h_prev = model.h_prev.detach()
+                        if model.h_prev is not None:
+                            model.h_prev = model.h_prev.detach()
 
         train_loss += seq_loss.item()
 
