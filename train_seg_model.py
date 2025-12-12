@@ -131,7 +131,6 @@ if __name__=="__main__":
     # ============================================================
 
     num_epochs = 30
-    TBPTT = 20 # backprop every 20 images
 
     for epoch in range(1, num_epochs + 1):
 
@@ -150,32 +149,10 @@ if __name__=="__main__":
 
             model.h_prev = None
             optimizer.zero_grad(set_to_none=True)
-            
-            running_seq_loss = 0.0  # for logging only
 
-            # seq_loss = 0.0
-
-            # with autocast(device_type="cuda"):
-            #     for t in range(T):
-            #         out = model(images[:, t], t_idx=t)
-
-            #         ce = criterion_ce(out, masks[:, t])
-            #         ft = focal_tversky_loss(out, masks[:, t])
-            #         di = dice_loss(out, masks[:, t])
-
-            #         loss = 0.2*ft + 0.8*di
-            #         seq_loss += loss
-
-            # seq_loss = seq_loss / T
-
-            # scaler.scale(seq_loss).backward()
-            # scaler.step(optimizer)
-            # scaler.update()
+            seq_loss = 0.0
 
             with autocast(device_type="cuda"):
-                chunk_loss = 0.0
-                counter = 0
-
                 for t in range(T):
                     out = model(images[:, t], t_idx=t)
 
@@ -184,42 +161,20 @@ if __name__=="__main__":
                     di = dice_loss(out, masks[:, t])
 
                     loss = 0.2*ft + 0.8*di
+                    seq_loss += loss
 
-                    # Just for logging
-                    running_seq_loss += loss.item()
+            seq_loss = seq_loss / T
 
-                    # For actual training
-                    chunk_loss += loss
-                    counter += 1
-
-                    # ----- backprop every N frames -----
-                    if counter == TBPTT or t == T-1:
-                        chunk_loss = chunk_loss / counter
-                        scaler.scale(chunk_loss).backward()
-
-                        if model.h_prev is not None:
-                            model.h_prev = model.h_prev.detach()
-
-                        scaler.step(optimizer)
-                        scaler.update()
-                        optimizer.zero_grad(set_to_none=True)
-
-                        chunk_loss = 0.0
-                        counter = 0
-
+            scaler.scale(seq_loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             scheduler.step()
 
-            avg_seq_loss = running_seq_loss / T
-            train_loss += avg_seq_loss
-            pbar.set_postfix({"loss": avg_seq_loss})
+            if model.h_prev is not None:
+                model.h_prev = model.h_prev.detach()
 
-            # scheduler.step()
-
-            # if model.h_prev is not None:
-            #     model.h_prev = model.h_prev.detach()
-
-            # train_loss += seq_loss.item()
-            # pbar.set_postfix({"loss": seq_loss.item()})
+            train_loss += seq_loss.item()
+            pbar.set_postfix({"loss": seq_loss.item()})
 
         avg_train = train_loss / len(train_loader)
         print(f"Epoch {epoch} Train Loss: {avg_train:.4f}")
