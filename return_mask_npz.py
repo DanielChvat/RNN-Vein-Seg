@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 import os
+import re
 
 from seg_model import RNN
 from dataset import SequenceDataset
@@ -15,6 +16,32 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 UPSAMPLE_FACTOR = 4  # upscale 4×
 
+slice_re = re.compile(r"_slice_(\d+)\.npz$")
+
+dict_slice_nums = {
+    "OA": None, 
+    "ICA": None, 
+    "ICA2": None, 
+    "Cube96": None, 
+    "Cube15": None, 
+    "Cube95": None, 
+    "Cube16": None
+}
+
+for dataset_name in dict_slice_nums:
+    npz_dir = os.path.join(DATA_PATH, dataset_name)
+
+    slice_nums = []
+
+    for fname in os.listdir(npz_dir):
+        match = slice_re.search(fname)
+        if match:
+            slice_nums.append(int(match.group(1)))
+
+    if slice_nums:
+        dict_slice_nums[dataset_name] = min(slice_nums)
+
+
 def main():
     dataset = SequenceDataset(DATA_PATH)
 
@@ -26,9 +53,11 @@ def main():
     with torch.no_grad():
         for seq_idx in range(len(dataset)):
             sample = dataset[seq_idx]
+            # print("sample looks like: ", sample)
             images = sample["images"].to(DEVICE)
             masks = sample["masks"].to(DEVICE)
             seq_name = sample["seq_name"]
+            slice_num = dict_slice_nums[seq_name]
 
             if "AUG" in seq_name:
                 continue
@@ -37,7 +66,7 @@ def main():
             model.h_prev = None
 
             for t in range(T):
-                print(f"Sequence: {seq_name}, Frame: {t}")
+                print(f"Sequence: {seq_name}, Frame: {t}, Slice: {slice_num}")
                 out = model(images[t].unsqueeze(0), t_idx=t)
 
                 out_up = F.interpolate(out, scale_factor=UPSAMPLE_FACTOR,
@@ -52,9 +81,11 @@ def main():
 
                 if SAVE_OUTPUT:
                     np.savez_compressed(
-                        os.path.join(OUTPUT_DIR, f"{seq_name}_frame{t}.npz"),
+                        os.path.join(OUTPUT_DIR, f"{seq_name}_slice_{slice_num}.npz"),
                         pred=pred_class.cpu().numpy().astype(np.uint8)
                     )
+
+                slice_num += 1
 
 
             print(f"Sequence {seq_name} done.\n")
