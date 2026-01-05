@@ -81,7 +81,7 @@ if __name__ == "__main__":
     ROOT = "./filtered_data"
     OUT_ROOT = "./filtered_data_augmented"
 
-    DATASETS = ["OA", "ICA", "ICA2", "Cube96", "Cube15", "Cube95", "Cube16"]
+    DATASETS = ["OA", "ICA", "ICA2", "Cube96", "Cube15", "Cube95", "Cube16", "Cube24"]
     NUM_AUGMENTS = 5
 
     for name in DATASETS:

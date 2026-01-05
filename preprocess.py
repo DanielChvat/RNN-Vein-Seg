@@ -66,7 +66,8 @@ if __name__ == "__main__":
         "Cube96": ("./raw_data/Cube96/imgs", "./raw_data/Cube96/masks"),
         "Cube15": ("./raw_data/Cube15/imgs", "./raw_data/Cube15/masks"),
         "Cube16": ("./raw_data/Cube16/imgs", "./raw_data/Cube16/masks"),
-        "Cube95": ("./raw_data/Cube95/imgs", "./raw_data/Cube95/masks")
+        "Cube95": ("./raw_data/Cube95/imgs", "./raw_data/Cube95/masks"),
+        "Cube24": ("./raw_data/Cube24/imgs", "./raw_data/Cube24/masks")
     }
 
     for name, (img_folder, lbl_folder) in datasets.items():
