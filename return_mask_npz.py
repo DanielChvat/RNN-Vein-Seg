@@ -25,7 +25,8 @@ dict_slice_nums = {
     "Cube96": None, 
     "Cube15": None, 
     "Cube95": None, 
-    "Cube16": None
+    "Cube16": None,
+    "Cube24": None
 }
 
 for dataset_name in dict_slice_nums:

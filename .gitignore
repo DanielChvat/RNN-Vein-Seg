@@ -7,3 +7,4 @@ __pycache__
 filtered_data/
 *.pth
 rnn-vein-seg/
+filtered_data_augmented/
