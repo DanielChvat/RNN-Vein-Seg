@@ -9,7 +9,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {device}")
 
 root_dir = './processed_data'
-epochs = 10
+epochs = 5
 batch_size = 1
 base_lr = 1e-3
 
@@ -26,6 +26,14 @@ model = EmpyMaskCNN().to(device)
 
 criterion = nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=base_lr)
+
+steps_per_epoch = len(train_loader)
+
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+    optimizer, 
+    T_max=(epochs * steps_per_epoch),
+    eta_min=1e-6
+)
 
 print(f"Using Train Dataset of length {len(train_dataset)}")
 print(f"Using Validation Dataset of length {len(val_dataset)}")
@@ -48,6 +56,7 @@ for epoch in range(1, epochs + 1):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        scheduler.step()
 
         running_loss += loss.item()
 
@@ -74,7 +83,7 @@ for epoch in range(1, epochs + 1):
             acc = correct / total
             val_bar.set_postfix({"acc": acc})
 
-    print(f"Epoch {epoch:02d} | Train Loss: {running_loss:.4f} | Val Acc: {acc:.4f}")
+    print(f"Epoch {epoch:02d} | Train Loss: {running_loss / steps_per_epoch:.4f} | Val Acc: {acc:.4f}")
 
 # Save model
 torch.save(model.state_dict(), "empty_detector.pth")

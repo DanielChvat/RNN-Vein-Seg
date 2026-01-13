@@ -1,8 +1,10 @@
 processed_data/
 checkpoints/
-vis_outputs/
 raw_data/
 __pycache__
 .DS_Store
 filtered_data/
 *.pth
+rnn-vein-seg/
+filtered_data_augmented/
+vis_outputs/
