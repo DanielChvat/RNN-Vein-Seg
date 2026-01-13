@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
     """
@@ -13,6 +14,7 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
         coeffs (np.ndarray): Polynomial coefficients.
     """
     data = np.load(npz_path)
+    R = None
     if mask_key is None:
         mask_key = list(data.keys())[0]
     mask = data[mask_key]
@@ -111,19 +113,29 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
         plt.xlabel('Width (mm)')
         plt.ylabel('Height (mm)')
         plt.legend()
-        plt.show()
+        out_dir = "./fitted_polynomial_vis"
+        os.makedirs(out_dir, exist_ok=True)
+
+        base = os.path.splitext(os.path.basename(npz_path))[0]
+        out_path = os.path.join(out_dir, f"{base}_polyfit.png")
+
+        plt.savefig(out_path, dpi=300, bbox_inches="tight")
+        plt.close()
 
     return coeffs, R
 
 # Example usage
 if __name__ == "__main__":
     # Use the provided example file and always plot
-    npz_file = "npz_outputs/OA_frame30.npz"
-    degree = 2
-    print(f"Fitting polynomial of degree {degree} to mask in {npz_file}...")
-    coeffs, R = fit_mask_polynomial(npz_file, degree=degree, plot=True)
-    # print("Polynomial coefficients:", coeffs)
-    if R is not None:
-        print(f"Radius of curvature at last evaluated point: {R:.2f} mm")
-    else:
-        print("Cannot compute radius of curvature (possibly due to zero curvature).")
+    root_dir = './npz_outputs'
+    for filename in open("candidates.txt"):
+        filename = filename.strip('\n')
+        npz_file = os.path.join(root_dir, filename)
+        degree = 2
+        print(f"Fitting polynomial of degree {degree} to mask in {npz_file}...")
+        coeffs, R = fit_mask_polynomial(npz_file, degree=degree, plot=True)
+        # print("Polynomial coefficients:", coeffs)
+        if R is not None:
+            print(f"Radius of curvature at last evaluated point: {R:.2f} mm")
+        else:
+            print("Cannot compute radius of curvature (possibly due to zero curvature).")

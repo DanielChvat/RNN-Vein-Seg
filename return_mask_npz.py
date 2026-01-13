@@ -58,10 +58,8 @@ def main():
             images = sample["images"].to(DEVICE)
             masks = sample["masks"].to(DEVICE)
             seq_name = sample["seq_name"]
+            if 'AUG' in seq_name: continue
             slice_num = dict_slice_nums[seq_name]
-
-            if "AUG" in seq_name:
-                continue
 
             T = images.size(0)
             model.h_prev = None
