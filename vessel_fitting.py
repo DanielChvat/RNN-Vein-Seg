@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
+def fit_mask_polynomial(npz_path, mask_key=None, degree=4, plot=False):
     """
     Load a .npz file as a mask, extract nonzero pixel coordinates, and fit a polynomial.
     Args:
@@ -11,6 +11,7 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
         plot (bool): Whether to plot the mask and fitted polynomial.
     Returns:
         coeffs (np.ndarray): Polynomial coefficients.
+        radii (list): List of radii of curvature (mm) for each cluster; None when not computable.
     """
     data = np.load(npz_path)
     if mask_key is None:
@@ -36,6 +37,8 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
     # Fit polynomial to all nonzero pixels (in mm)
     coeffs = np.polyfit(x_indices_mm, y_indices_mm, degree)
     poly = np.poly1d(coeffs)
+
+    radii = []
 
     if plot:
         plt.imshow(mask, cmap='gray', extent=[0, mm_width, mm_height, 0], aspect='auto')
@@ -108,22 +111,51 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
                 plt.scatter([cx_mm], [cy_mm], color='yellow', s=30, marker='x', label='Centroid' if 'Centroid' not in plt.gca().get_legend_handles_labels()[1] else None)
                 plt.scatter([x_poly], [y_poly], color='cyan', s=30, marker='o', label='Closest Poly Pt' if 'Closest Poly Pt' not in plt.gca().get_legend_handles_labels()[1] else None)
                 plt.scatter([x_center], [y_center], color='magenta', s=30, marker='*', label='Curvature Center' if 'Curvature Center' not in plt.gca().get_legend_handles_labels()[1] else None)
+            # Record radius for this cluster (None when not computable)
+            radii.append(R)
         plt.xlabel('Width (mm)')
         plt.ylabel('Height (mm)')
         plt.legend()
         plt.show()
 
-    return coeffs, R
+    # If not plotting (no centroid loop ran), still compute radii for clusters
+    if not plot:
+        # --- Find clusters of value 2 and compute radii without plotting ---
+        from scipy.ndimage import label, center_of_mass
+        mask2 = (mask == 2)
+        labeled, num_features = label(mask2)
+        centroids = center_of_mass(mask2, labeled, range(1, num_features+1))
+        for centroid in centroids:
+            cy, cx = centroid
+            cx_mm = cx * x_scale
+            cy_mm = cy * y_scale
+            x_search = np.linspace(x_indices_mm.min(), x_indices_mm.max(), 1000)
+            y_search = poly(x_search)
+            dists = np.sqrt((x_search - cx_mm)**2 + (y_search - cy_mm)**2)
+            min_idx = np.argmin(dists)
+            x_poly = x_search[min_idx]
+            dy = np.polyder(poly, 1)(x_poly)
+            ddy = np.polyder(poly, 2)(x_poly)
+            kappa = np.abs(ddy) / (1 + dy**2)**1.5 if (1 + dy**2) != 0 else 0
+            R = None
+            if kappa != 0:
+                R = 1 / kappa
+            radii.append(R)
+
+    return coeffs, radii
 
 # Example usage
 if __name__ == "__main__":
     # Use the provided example file and always plot
     npz_file = "npz_outputs/OA_frame30.npz"
-    degree = 2
+    degree = 4
     print(f"Fitting polynomial of degree {degree} to mask in {npz_file}...")
-    coeffs, R = fit_mask_polynomial(npz_file, degree=degree, plot=True)
-    # print("Polynomial coefficients:", coeffs)
-    if R is not None:
-        print(f"Radius of curvature at last evaluated point: {R:.2f} mm")
+    coeffs, radii = fit_mask_polynomial(npz_file, degree=degree, plot=True)
+    if len(radii) > 0:
+        for i, r in enumerate(radii, start=1):
+            if r is not None:
+                print(f"Cluster {i}: Radius = {r:.2f} mm")
+            else:
+                print(f"Cluster {i}: Radius = None")
     else:
-        print("Cannot compute radius of curvature (possibly due to zero curvature).")
+        print("No curvature radii computed.")
