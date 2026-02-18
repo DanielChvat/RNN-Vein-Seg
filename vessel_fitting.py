@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
+import re
 
 def fit_mask_polynomial(npz_path, mask_key=None, degree=4, plot=False):
     """
@@ -144,18 +146,55 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=4, plot=False):
 
     return coeffs, radii
 
+
+def _sort_key_for_slice_file(path_obj):
+    """Sort files by cube id, then frame id when present."""
+    stem = path_obj.stem
+    cube_match = re.search(r"Cube(\d+)", stem, flags=re.IGNORECASE)
+    frame_match = re.search(r"frame(\d+)", stem, flags=re.IGNORECASE)
+    cube_id = int(cube_match.group(1)) if cube_match else -1
+    frame_id = int(frame_match.group(1)) if frame_match else -1
+    return (cube_id, frame_id, stem.lower())
+
+
+def report_radii_for_slices(input_dir="npz_outputs", output_txt="radii_report.txt", degree=4):
+    """
+    Compute radii for each .npz slice file and save a text report.
+
+    Output format: one slice per line. If two radii are found, both are written
+    on the same line.
+    """
+    input_path = Path(input_dir)
+    if not input_path.exists() or not input_path.is_dir():
+        raise FileNotFoundError(f"Input directory not found: {input_dir}")
+
+    npz_files = sorted(input_path.glob("*.npz"), key=_sort_key_for_slice_file)
+    if not npz_files:
+        raise FileNotFoundError(f"No .npz files found in: {input_dir}")
+
+    lines = []
+    for npz_file in npz_files:
+        try:
+            _, radii = fit_mask_polynomial(str(npz_file), degree=degree, plot=False)
+        except Exception as exc:
+            lines.append(f"{npz_file.name}: ERROR={exc}")
+            continue
+
+        if len(radii) == 0:
+            radii_text = "None"
+        else:
+            formatted = [(f"{r:.4f}" if r is not None else "None") for r in radii]
+            radii_text = ", ".join(formatted)
+
+        lines.append(f"{npz_file.name}: {radii_text}")
+
+    output_path = Path(output_txt)
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+    return output_path
+
 # Example usage
 if __name__ == "__main__":
-    # Use the provided example file and always plot
-    npz_file = "npz_outputs/OA_frame30.npz"
+    # Process all slices and save one-line-per-slice radii report
     degree = 4
-    print(f"Fitting polynomial of degree {degree} to mask in {npz_file}...")
-    coeffs, radii = fit_mask_polynomial(npz_file, degree=degree, plot=True)
-    if len(radii) > 0:
-        for i, r in enumerate(radii, start=1):
-            if r is not None:
-                print(f"Cluster {i}: Radius = {r:.2f} mm")
-            else:
-                print(f"Cluster {i}: Radius = None")
-    else:
-        print("No curvature radii computed.")
+    report_path = report_radii_for_slices(input_dir="npz_outputs", output_txt="radii_report.txt", degree=degree)
+    print(f"Saved radii report to: {report_path}")
