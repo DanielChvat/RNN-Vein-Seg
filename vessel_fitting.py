@@ -156,8 +156,8 @@ if __name__ == "__main__":
     
     output_txt = "slice_radii.txt"
     with open(output_txt, "w") as out_file:
-        for filename in open('candidates.txt'):
-            filename = filename.strip()
+        for filename in os.listdir(root_dir): #open('candidates.txt'):
+            #filename = filename.strip()
             # Write slice header
             npz_file = os.path.join(root_dir, filename)
             # Extract sequence type (before first underscore)
