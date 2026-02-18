@@ -1,0 +1,159 @@
+Cube95_slice_24.npz
+  Cluster 1: 1.0381 mm
+Cube95_slice_25.npz
+  Cluster 1: 1.0141 mm
+Cube95_slice_26.npz
+  Cluster 1: 0.9179 mm
+Cube95_slice_27.npz
+  Cluster 1: 0.9059 mm
+Cube95_slice_28.npz
+  Cluster 1: 0.8869 mm
+Cube95_slice_29.npz
+  Cluster 1: 0.7960 mm
+Cube95_slice_30.npz
+  Cluster 1: 0.7996 mm
+Cube95_slice_31.npz
+  Cluster 1: 0.7443 mm
+Cube95_slice_32.npz
+  Cluster 1: 0.7162 mm
+Cube95_slice_33.npz
+  Cluster 1: 0.6804 mm
+Cube95_slice_34.npz
+  Cluster 1: 0.7088 mm
+Cube95_slice_35.npz
+  Cluster 1: 0.7396 mm
+Cube95_slice_36.npz
+  Cluster 1: 0.7381 mm
+Cube95_slice_37.npz
+  Cluster 1: 0.7755 mm
+Cube95_slice_38.npz
+  Cluster 1: 0.7741 mm
+Cube95_slice_39.npz
+  Cluster 1: 0.8241 mm
+Cube95_slice_40.npz
+  Cluster 1: 0.8320 mm
+Cube95_slice_41.npz
+  Cluster 1: 0.8035 mm
+Cube95_slice_42.npz
+  Cluster 1: 0.8426 mm
+Cube95_slice_43.npz
+  Cluster 1: 0.8706 mm
+Cube95_slice_44.npz
+  Cluster 1: 0.7868 mm
+Cube95_slice_45.npz
+  Cluster 1: 0.9128 mm
+Cube95_slice_46.npz
+  Cluster 1: 0.8583 mm
+Cube95_slice_47.npz
+  Cluster 1: 0.9215 mm
+Cube95_slice_48.npz
+  Cluster 1: 1.0178 mm
+Cube95_slice_49.npz
+  Cluster 1: 0.6982 mm
+Cube95_slice_50.npz
+  Cluster 1: 0.7616 mm
+Cube95_slice_51.npz
+  Cluster 1: 0.8425 mm
+Cube95_slice_52.npz
+  Cluster 1: 0.7419 mm
+Cube95_slice_53.npz
+  Cluster 1: 0.8593 mm
+Cube95_slice_54.npz
+  Cluster 1: 0.8050 mm
+Cube95_slice_55.npz
+  Cluster 1: 0.6989 mm
+Cube95_slice_56.npz
+  Cluster 1: 0.5551 mm
+Cube95_slice_57.npz
+  Cluster 1: 0.6023 mm
+Cube95_slice_58.npz
+  Cluster 1: 0.7738 mm
+Cube95_slice_59.npz
+  Cluster 1: 0.6563 mm
+ICA2_slice_59.npz
+  Cluster 1: 0.9865 mm
+ICA2_slice_60.npz
+  Cluster 1: 0.9436 mm
+ICA2_slice_61.npz
+  Cluster 1: 0.9289 mm
+ICA2_slice_62.npz
+  Cluster 1: 0.9374 mm
+ICA2_slice_63.npz
+  Cluster 1: 0.9606 mm
+ICA2_slice_64.npz
+  Cluster 1: 1.3986 mm
+ICA2_slice_65.npz
+  Cluster 1: 1.3765 mm
+ICA2_slice_66.npz
+  Cluster 1: 1.4493 mm
+ICA2_slice_67.npz
+  Cluster 1: 1.4139 mm
+ICA2_slice_68.npz
+  Cluster 1: 1.4781 mm
+ICA2_slice_69.npz
+  Cluster 1: 1.5393 mm
+ICA2_slice_70.npz
+  Cluster 1: 1.5030 mm
+  Cluster 2: 3.8148 mm
+ICA2_slice_71.npz
+  Cluster 1: 1.6696 mm
+ICA2_slice_72.npz
+  Cluster 1: 1.8537 mm
+ICA2_slice_73.npz
+  Cluster 1: 2.0999 mm
+ICA2_slice_74.npz
+  Cluster 1: 2.3414 mm
+ICA2_slice_75.npz
+  Cluster 1: 2.1679 mm
+ICA2_slice_76.npz
+  Cluster 1: 1.0000 mm
+ICA2_slice_77.npz
+  Cluster 1: 1.7895 mm
+OA_slice_55.npz
+  Cluster 1: 0.5664 mm
+OA_slice_56.npz
+  Cluster 1: 0.7747 mm
+OA_slice_57.npz
+  Cluster 1: 0.9134 mm
+OA_slice_58.npz
+  Cluster 1: 1.0209 mm
+OA_slice_59.npz
+  Cluster 1: 0.8708 mm
+OA_slice_60.npz
+  Cluster 1: 0.9513 mm
+OA_slice_61.npz
+  Cluster 1: 1.0565 mm
+OA_slice_62.npz
+  Cluster 1: 1.1545 mm
+OA_slice_63.npz
+  Cluster 1: 1.1769 mm
+OA_slice_64.npz
+  Cluster 1: 1.1731 mm
+OA_slice_65.npz
+  Cluster 1: 1.1024 mm
+OA_slice_66.npz
+  Cluster 1: 0.9695 mm
+OA_slice_67.npz
+  Cluster 1: 0.8913 mm
+OA_slice_68.npz
+  Cluster 1: 0.7565 mm
+OA_slice_69.npz
+  Cluster 1: 0.7076 mm
+OA_slice_70.npz
+  Cluster 1: 0.6655 mm
+OA_slice_71.npz
+  Cluster 1: 0.7321 mm
+OA_slice_72.npz
+  Cluster 1: 0.6934 mm
+OA_slice_73.npz
+  Cluster 1: 0.7455 mm
+OA_slice_74.npz
+  Cluster 1: 0.7241 mm
+OA_slice_75.npz
+  Cluster 1: 0.8073 mm
+OA_slice_76.npz
+  Cluster 1: 0.7459 mm
+OA_slice_77.npz
+  Cluster 1: 0.7732 mm
+OA_slice_78.npz
+  Cluster 1: 0.7160 mm
