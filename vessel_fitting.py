@@ -154,9 +154,10 @@ if __name__ == "__main__":
     sequence_types = ['Cube15', 'Cube16', 'OA', 'ICA2', 'ICA', 'Cube24', 'Cube95', 'Cube96'] 
     radii_by_sequence = defaultdict(list)
     
-    output_txt = "slice_radii.txt"
+    output_txt = "slice_radii_full.txt"
     with open(output_txt, "w") as out_file:
-        for filename in open('candidates.txt'):
+        #for filename in open('candidates.txt'):
+        for filename in os.listdir(root_dir):
             filename = filename.strip()
             # Write slice header
             npz_file = os.path.join(root_dir, filename)
