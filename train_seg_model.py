@@ -1,7 +1,6 @@
 import os
 import re
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Subset, DataLoader
 from torch.amp import GradScaler, autocast
@@ -9,7 +8,7 @@ from tqdm import tqdm
 
 from dataset import SequenceDataset
 from seg_model import RNN
-from loss import focal_tversky_loss, dice_loss, ClassBalancedSoftmaxCE, compute_N_i
+from loss import focal_tversky_loss, dice_loss
 
 def base_name(name):
     """Remove _AUG_xxx suffix to find the root sequence name."""
@@ -110,11 +109,6 @@ if __name__=="__main__":
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-    # Class-balancing (computed from TRAIN ONLY)
-    class_counts = compute_N_i(train_loader, num_classes=3)
-    print("Class counts:", class_counts)
-    criterion_ce = ClassBalancedSoftmaxCE(class_counts)
-
     scheduler = optim.lr_scheduler.CosineAnnealingLR(
         optimizer,
         T_max=30 * len(train_loader),
@@ -156,7 +150,6 @@ if __name__=="__main__":
                 for t in range(T):
                     out = model(images[:, t], t_idx=t)
 
-                    ce = criterion_ce(out, masks[:, t])
                     ft = focal_tversky_loss(out, masks[:, t])
                     di = dice_loss(out, masks[:, t])
 
