@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from collections import defaultdict
 
-def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
+def fit_mask_polynomial(npz_path, mask_key=None, degree=4, plot=False):
     """
     Load a .npz file as a mask, extract nonzero pixel coordinates, and fit a polynomial.
     Args:
@@ -12,9 +13,9 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
         plot (bool): Whether to plot the mask and fitted polynomial.
     Returns:
         coeffs (np.ndarray): Polynomial coefficients.
+        radii (list): List of radii of curvature (mm) for each cluster; None when not computable.
     """
     data = np.load(npz_path)
-    R = None
     if mask_key is None:
         mask_key = list(data.keys())[0]
     mask = data[mask_key]
@@ -38,6 +39,8 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
     # Fit polynomial to all nonzero pixels (in mm)
     coeffs = np.polyfit(x_indices_mm, y_indices_mm, degree)
     poly = np.poly1d(coeffs)
+
+    radii = []
 
     if plot:
         plt.imshow(mask, cmap='gray', extent=[0, mm_width, mm_height, 0], aspect='auto')
@@ -110,32 +113,89 @@ def fit_mask_polynomial(npz_path, mask_key=None, degree=2, plot=False):
                 plt.scatter([cx_mm], [cy_mm], color='yellow', s=30, marker='x', label='Centroid' if 'Centroid' not in plt.gca().get_legend_handles_labels()[1] else None)
                 plt.scatter([x_poly], [y_poly], color='cyan', s=30, marker='o', label='Closest Poly Pt' if 'Closest Poly Pt' not in plt.gca().get_legend_handles_labels()[1] else None)
                 plt.scatter([x_center], [y_center], color='magenta', s=30, marker='*', label='Curvature Center' if 'Curvature Center' not in plt.gca().get_legend_handles_labels()[1] else None)
+            # Record radius for this cluster (None when not computable)
+            radii.append(R)
         plt.xlabel('Width (mm)')
         plt.ylabel('Height (mm)')
         plt.legend()
-        out_dir = "./fitted_polynomial_vis"
-        os.makedirs(out_dir, exist_ok=True)
+        plt.show()
 
-        base = os.path.splitext(os.path.basename(npz_path))[0]
-        out_path = os.path.join(out_dir, f"{base}_polyfit.png")
+    # If not plotting (no centroid loop ran), still compute radii for clusters
+    if not plot:
+        # --- Find clusters of value 2 and compute radii without plotting ---
+        from scipy.ndimage import label, center_of_mass
+        mask2 = (mask == 2)
+        labeled, num_features = label(mask2)
+        centroids = center_of_mass(mask2, labeled, range(1, num_features+1))
+        for centroid in centroids:
+            cy, cx = centroid
+            cx_mm = cx * x_scale
+            cy_mm = cy * y_scale
+            x_search = np.linspace(x_indices_mm.min(), x_indices_mm.max(), 1000)
+            y_search = poly(x_search)
+            dists = np.sqrt((x_search - cx_mm)**2 + (y_search - cy_mm)**2)
+            min_idx = np.argmin(dists)
+            x_poly = x_search[min_idx]
+            dy = np.polyder(poly, 1)(x_poly)
+            ddy = np.polyder(poly, 2)(x_poly)
+            kappa = np.abs(ddy) / (1 + dy**2)**1.5 if (1 + dy**2) != 0 else 0
+            R = None
+            if kappa != 0:
+                R = 1 / kappa
+            radii.append(R)
 
-        plt.savefig(out_path, dpi=300, bbox_inches="tight")
-        plt.close()
-
-    return coeffs, R
+    return coeffs, radii
 
 # Example usage
 if __name__ == "__main__":
     # Use the provided example file and always plot
+    #npz_file = "npz_outputs/OA_frame30.npz"
     root_dir = './npz_outputs'
-    for filename in open("candidates.txt"):
-        filename = filename.strip('\n')
-        npz_file = os.path.join(root_dir, filename)
-        degree = 2
-        print(f"Fitting polynomial of degree {degree} to mask in {npz_file}...")
-        coeffs, R = fit_mask_polynomial(npz_file, degree=degree, plot=True)
-        # print("Polynomial coefficients:", coeffs)
-        if R is not None:
-            print(f"Radius of curvature at last evaluated point: {R:.2f} mm")
+    sequence_types = ['Cube15', 'Cube16', 'OA', 'ICA2', 'ICA', 'Cube24', 'Cube95', 'Cube96'] 
+    radii_by_sequence = defaultdict(list)
+    
+    output_txt = "slice_radii_full.txt"
+    with open(output_txt, "w") as out_file:
+        #for filename in open('candidates.txt'):
+        for filename in os.listdir(root_dir):
+            filename = filename.strip()
+            # Write slice header
+            npz_file = os.path.join(root_dir, filename)
+            # Extract sequence type (before first underscore)
+            seq_type = filename.split('_')[0]
+            print(f"Processing {filename} (Sequence: {seq_type})")
+            degree = 4
+            print(f"Fitting polynomial of degree {degree} to mask in {npz_file}...")
+            coeffs, radii = fit_mask_polynomial(npz_file, degree=degree, plot=False)
+            # Write slice header
+            out_file.write(f"{filename}\n")
+            if len(radii) > 0:
+                for i, r in enumerate(radii, start=1):
+                    if r is not None:
+                        radii_by_sequence[seq_type].append(r)
+                        out_file.write(f"  Cluster {i}: {r:.4f} mm\n")
+                        print(f"Cluster {i}: Radius = {r:.2f} mm")
+                    else:
+                        out_file.write(f"  Cluster {i}: None\n")
+                        print(f"Cluster {i}: Radius = None")
+            else:
+                out_file.write("\n")  # blank line between slices
+                print("No curvature radii computed.")
+
+    print(f"\nRadii written to {output_txt}")
+    # --- Compute statistics ---
+    print("\n=== Statistics Per Sequence Type ===")
+
+    for seq, values in radii_by_sequence.items():
+        if len(values) > 0:
+            mean_val = np.mean(values)
+            std_val = np.std(values)
+
+            print(f"{seq}:")
+            print(f"  Mean radius = {mean_val:.2f} mm")
+            print(f"  Std dev     = {std_val:.2f} mm")
+            print(f"  N           = {len(values)}")
         else:
-            print("Cannot compute radius of curvature (possibly due to zero curvature).")
+            print(f"{seq}: No valid radii found.")
+
+    
