@@ -1,20 +1,17 @@
 import os
 import re
-from datetime import datetime
-
-import numpy as np
 import torch
 import torch.optim as optim
 from torch.utils.data import Subset, DataLoader
 from torch.amp import GradScaler, autocast
 from tqdm import tqdm
-from tensorboardX import SummaryWriter
 
 from dataset import SequenceDataset
 from seg_model import RNN
 from loss import focal_tversky_loss, dice_loss
 
 def base_name(name):
+    """Remove _AUG_xxx suffix to find the root sequence name."""
     return re.sub(r"_AUG_\d+$", "", name)
 
 if __name__=="__main__":
@@ -122,10 +119,6 @@ if __name__=="__main__":
 
     best_val_loss = float("inf")
 
-# (Optional) log model parameter count
-n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-writer.add_text("meta/params", f"Trainable params: {n_params}")
-writer.add_text("meta/splits", f"VAL_GROUPS={VAL_GROUPS} TRAIN_GROUPS={TRAIN_GROUPS}")
 
     # ============================================================
     #     6. TRAINING + VALIDATION LOOP
