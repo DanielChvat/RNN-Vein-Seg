@@ -19,14 +19,22 @@ def intensity_correlation(
     tsne_components: int = 2,
     pca_components: int = 50,
     show: bool = True,
+    figures_dir: os.PathLike | str | None = config.FIGURES_DIR,
 ) -> None:
-    """Correlate mean pixel intensity with mask emptiness, then embed with t-SNE."""
+    """Correlate mean pixel intensity with mask emptiness, then embed with t-SNE.
+
+    Both plots are written to ``figures_dir`` (pass ``None`` to skip). They used
+    to be shown and then lost, so a headless run produced nothing at all.
+    """
     import matplotlib.pyplot as plt
     from scipy.stats import pearsonr
     from sklearn.decomposition import PCA
     from sklearn.manifold import TSNE
 
     data_dir = Path(data_dir)
+    if figures_dir is not None:
+        figures_dir = Path(figures_dir)
+        figures_dir.mkdir(parents=True, exist_ok=True)
     # Sequences are discovered rather than hardcoded; this script used to carry
     # its own list of four, which had drifted behind the other three copies.
     sequences = config.discover_sequences(data_dir)
@@ -50,11 +58,16 @@ def intensity_correlation(
     print(f"Mean intensity, empty masks:     {intensities[is_empty == 1].mean():.4f}")
     print(f"Mean intensity, non-empty masks: {intensities[is_empty == 0].mean():.4f}")
 
+    plt.figure(figsize=(8, 6))
     plt.hist(intensities[is_empty == 1], bins=40, alpha=0.6, label="empty mask")
     plt.hist(intensities[is_empty == 0], bins=40, alpha=0.6, label="non-empty mask")
     plt.legend()
     plt.xlabel("Avg pixel intensity")
     plt.ylabel("Count")
+    if figures_dir is not None:
+        path = figures_dir / "intensity_histogram.png"
+        plt.savefig(path, dpi=150, bbox_inches="tight")
+        print(f"wrote {path}")
     if show:
         plt.show()
 
@@ -76,6 +89,10 @@ def intensity_correlation(
     plt.figure(figsize=(8, 6))
     plt.scatter(embedding[:, 0], embedding[:, 1], c=is_empty, cmap="coolwarm", alpha=0.6)
     plt.title("t-SNE on OCT frames (red = empty mask, blue = non-empty)")
+    if figures_dir is not None:
+        path = figures_dir / "tsne_empty_masks.png"
+        plt.savefig(path, dpi=150, bbox_inches="tight")
+        print(f"wrote {path}")
     if show:
         plt.show()
 

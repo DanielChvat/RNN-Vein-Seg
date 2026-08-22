@@ -30,17 +30,6 @@ def _banner(name: str) -> None:
 # ----------------------------------------------------------------------
 
 
-def _seg_config(args: argparse.Namespace) -> config.SegConfig:
-    cfg = config.SegConfig()
-    if args.epochs is not None:
-        cfg.epochs = args.epochs
-    if args.base_channels is not None:
-        cfg.base_channels = args.base_channels
-    if args.val_groups:
-        cfg.val_groups = tuple(args.val_groups)
-    return cfg
-
-
 def stage_preprocess(args) -> None:
     from . import preprocess
 
@@ -50,50 +39,47 @@ def stage_preprocess(args) -> None:
 def stage_train_detector(args) -> None:
     from . import empty_detector
 
-    empty_detector.train(args.processed_dir, args.detector_checkpoint)
+    empty_detector.train(args.processed_dir, args.detector_checkpoint, args.pipeline.detector)
 
 
 def stage_filter(args) -> None:
     from . import empty_detector
 
-    empty_detector.filter_frames(args.processed_dir, args.filtered_dir, args.detector_checkpoint)
+    empty_detector.filter_frames(
+        args.processed_dir, args.filtered_dir, args.detector_checkpoint, args.pipeline.detector
+    )
 
 
 def stage_augment(args) -> None:
     from . import augment
 
-    cfg = config.AugmentConfig(copy_originals=not args.no_copy_originals)
-    if args.num_augments is not None:
-        cfg.num_augments = args.num_augments
-    if args.seed is not None:
-        cfg.seed = args.seed
-    augment.run(args.filtered_dir, args.augmented_dir, cfg)
+    augment.run(args.filtered_dir, args.augmented_dir, args.pipeline.augment)
 
 
 def stage_train(args) -> None:
     from . import train
 
-    train.run(args.augmented_dir, args.checkpoint_dir, _seg_config(args))
+    train.run(args.augmented_dir, args.checkpoint_dir, args.pipeline.seg)
 
 
 def stage_predict(args) -> None:
     from . import inference
 
     inference.predict_masks(
-        args.filtered_dir, args.npz_dir, args.seg_checkpoint, args.upsample, _seg_config(args)
+        args.filtered_dir, args.npz_dir, args.seg_checkpoint, args.upsample, args.pipeline.seg
     )
 
 
 def stage_visualize(args) -> None:
     from . import visualize
 
-    visualize.run(args.filtered_dir, args.vis_dir, args.seg_checkpoint, _seg_config(args))
+    visualize.run(args.filtered_dir, args.vis_dir, args.seg_checkpoint, args.pipeline.seg)
 
 
 def stage_benchmark(args) -> None:
     from . import inference
 
-    inference.benchmark(args.filtered_dir, args.seg_checkpoint, cfg=_seg_config(args))
+    inference.benchmark(args.filtered_dir, args.seg_checkpoint, cfg=args.pipeline.seg)
 
 
 def stage_fit(args) -> None:
@@ -105,7 +91,7 @@ def stage_fit(args) -> None:
 def stage_analyze(args) -> None:
     from . import analysis
 
-    analysis.intensity_correlation(args.processed_dir)
+    analysis.intensity_correlation(args.processed_dir, figures_dir=args.figures_dir)
 
 
 def stage_viewer(args) -> None:
@@ -159,16 +145,16 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "stages:\n"
-            "  preprocess       raw_data/     -> processed_data/\n"
-            "  train-detector   processed_data/ -> empty_detector.pth\n"
-            "  filter           processed_data/ -> filtered_data/\n"
-            "  augment          filtered_data/  -> filtered_data_augmented/\n"
+            "  preprocess       data/raw/       -> data/processed/\n"
+            "  train-detector   data/processed/ -> checkpoints/empty_detector.pth\n"
+            "  filter           data/processed/ -> data/filtered/\n"
+            "  augment          data/filtered/  -> filtered_data_augmented/\n"
             "  train            filtered_data_augmented/ -> checkpoints/\n"
-            "  predict          filtered_data/  -> npz_outputs/\n"
-            "  visualize        filtered_data/  -> vis_outputs/\n"
+            "  predict          data/filtered/  -> npz_outputs/\n"
+            "  visualize        data/filtered/  -> vis_outputs/\n"
             "  benchmark        per-frame inference latency\n"
             "  fit              npz_outputs/    -> radii_report.txt\n"
-            "  analyze          intensity/t-SNE study of empty masks\n"
+            "  analyze          intensity/t-SNE study of empty masks -> figures/\n"
             "  viewer           interactive empty-detector browser\n"
             "\ngroups:\n"
             f"  prepare          {' -> '.join(PREPARE_STAGES)}\n"
@@ -183,17 +169,33 @@ def build_parser() -> argparse.ArgumentParser:
         help="one or more stages, or the group names 'prepare' / 'all'",
     )
 
-    paths = parser.add_argument_group("paths")
-    paths.add_argument("--raw-dir", type=Path, default=config.RAW_DIR)
-    paths.add_argument("--processed-dir", type=Path, default=config.PROCESSED_DIR)
-    paths.add_argument("--filtered-dir", type=Path, default=config.FILTERED_DIR)
-    paths.add_argument("--augmented-dir", type=Path, default=config.AUGMENTED_DIR)
-    paths.add_argument("--checkpoint-dir", type=Path, default=config.CHECKPOINT_DIR)
-    paths.add_argument("--seg-checkpoint", type=Path, default=config.SEG_CHECKPOINT)
-    paths.add_argument("--detector-checkpoint", type=Path, default=config.DETECTOR_CHECKPOINT)
-    paths.add_argument("--npz-dir", type=Path, default=config.NPZ_OUTPUT_DIR)
-    paths.add_argument("--vis-dir", type=Path, default=config.VIS_OUTPUT_DIR)
-    paths.add_argument("--report", type=Path, default=config.RADII_REPORT)
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=None,
+        metavar="FILE",
+        help=f"YAML config (default: {config.DEFAULT_CONFIG_FILE.relative_to(config.ROOT)} "
+        "if present; optional)",
+    )
+
+    # Path defaults are deliberately None so that "not passed" is
+    # distinguishable from "passed the default value" -- otherwise a YAML
+    # override could never win over an argparse default. Resolved in main().
+    paths = parser.add_argument_group("paths", "override the YAML config")
+    for flag in (
+        "--raw-dir",
+        "--processed-dir",
+        "--filtered-dir",
+        "--augmented-dir",
+        "--checkpoint-dir",
+        "--seg-checkpoint",
+        "--detector-checkpoint",
+        "--npz-dir",
+        "--vis-dir",
+        "--figures-dir",
+        "--report",
+    ):
+        paths.add_argument(flag, type=Path, default=None)
 
     opts = parser.add_argument_group("options")
     opts.add_argument("--epochs", type=int, help="segmentation training epochs")
@@ -207,11 +209,71 @@ def build_parser() -> argparse.ArgumentParser:
         "(reproduces the old behaviour: no clean holdout)",
     )
     opts.add_argument("--seed", type=int, help="augmentation seed")
-    opts.add_argument("--upsample", type=int, default=4, help="logit upsampling before argmax")
-    opts.add_argument("--degree", type=int, default=4, help="polynomial degree for vessel fitting")
-    opts.add_argument("--clean", action="store_true", help="delete processed_data/ when done")
+    opts.add_argument("--upsample", type=int, help="logit upsampling before argmax")
+    opts.add_argument("--degree", type=int, help="polynomial degree for vessel fitting")
+    opts.add_argument("--clean", action="store_true", help="delete the processed dir when done")
 
     return parser
+
+
+#: argparse dest -> config constant, for the CLI > YAML > default cascade.
+_PATH_ARGS = {
+    "raw_dir": "RAW_DIR",
+    "processed_dir": "PROCESSED_DIR",
+    "filtered_dir": "FILTERED_DIR",
+    "augmented_dir": "AUGMENTED_DIR",
+    "checkpoint_dir": "CHECKPOINT_DIR",
+    "seg_checkpoint": "SEG_CHECKPOINT",
+    "detector_checkpoint": "DETECTOR_CHECKPOINT",
+    "npz_dir": "NPZ_OUTPUT_DIR",
+    "vis_dir": "VIS_OUTPUT_DIR",
+    "figures_dir": "FIGURES_DIR",
+    "report": "RADII_REPORT",
+}
+
+
+def resolve(args: argparse.Namespace, data: dict) -> argparse.Namespace:
+    """Fill every unset option from the YAML config, then the built-in default.
+
+    The whole CLI > YAML > default cascade happens here, once. It used to be
+    split between this and a per-stage helper, so an override only took effect
+    in the stages that remembered to call it.
+    """
+    config.apply_geometry(data)
+    args.pipeline = config.pipeline_from_yaml(data)
+
+    seg, augment = args.pipeline.seg, args.pipeline.augment
+    if args.epochs is not None:
+        seg.epochs = args.epochs
+    if args.base_channels is not None:
+        seg.base_channels = args.base_channels
+    if args.val_groups:
+        seg.val_groups = tuple(args.val_groups)
+    if args.num_augments is not None:
+        augment.num_augments = args.num_augments
+    if args.seed is not None:
+        augment.seed = args.seed
+    if args.no_copy_originals:
+        augment.copy_originals = False
+
+    overrides = config.resolve_paths(data)
+    for dest, attr in _PATH_ARGS.items():
+        if getattr(args, dest) is None:
+            setattr(args, dest, overrides.get(attr, getattr(config, attr)))
+
+    # Both live inside the checkpoint dir by default, so they follow
+    # --checkpoint-dir unless they were named outright.
+    for dest, attr in (("seg_checkpoint", "SEG_CHECKPOINT"), ("detector_checkpoint", "DETECTOR_CHECKPOINT")):
+        default = getattr(config, attr)
+        if attr not in overrides and getattr(args, dest) == default:
+            setattr(args, dest, args.checkpoint_dir / default.name)
+
+    if args.upsample is None:
+        args.upsample = config.get_key(data, "inference", "upsample", 4)
+    if args.degree is None:
+        args.degree = config.get_key(data, "fit", "degree", 4)
+
+    return args
 
 
 def expand(names: list[str]) -> tuple[str, ...]:
@@ -234,6 +296,10 @@ def expand(names: list[str]) -> tuple[str, ...]:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     stages = expand(args.stages)
+
+    # A named config must exist; the default one is allowed to be absent.
+    named = args.config is not None
+    args = resolve(args, config.load_yaml(args.config or config.DEFAULT_CONFIG_FILE, required=named))
 
     print(f"Pipeline: {' -> '.join(stages)}")
     run_stages(stages, args)

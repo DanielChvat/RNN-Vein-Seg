@@ -16,6 +16,7 @@ dependencies = [
     "albumentations>=2.0.8",
     "pillow>=10.0",
     "tqdm>=4.65",
+    "PyYAML>=6.0",
 ]
 
 [project.scripts]

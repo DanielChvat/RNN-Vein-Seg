@@ -1,0 +1,76 @@
+# Default pipeline configuration.
+#
+# This file is optional -- every key below has a working fallback in
+# veinseg/config.py. Precedence is: CLI flag > this file > built-in default.
+# Point somewhere else with:  python -m veinseg train --config configs/mine.yaml
+#
+# Relative paths resolve against the repository root, not the working directory.
+
+model:
+  type: RNN                # ConvGRU recurrent U-Net (veinseg/models.py)
+  in_channels: 1
+  base_channels: 32        # MUST match between training and inference, or the
+                           # checkpoint will not load
+  num_classes: 3           # 0 background, 1 wall, 2 vessel
+  dropout_p: 0.1
+  use_checkpoint: true     # gradient checkpointing; applies to training only
+
+data:
+  raw: data/raw                            # hand-provided <SEQ>/{imgs,masks}/
+  processed: data/processed                # preprocess output
+  filtered: data/filtered                  # empty-detector output; what predict reads
+  augmented: filtered_data_augmented       # what train reads (checked in, hence not under data/)
+  predictions: npz_outputs                 # predict output (checked in)
+
+  # Physical extent of one frame, in mm. Assumed rather than measured: every
+  # radius reported by `fit` scales with these, so a different acquisition
+  # geometry needs them changed here.
+  frame_mm: [10.0, 2.8]    # [width, height]
+
+  # Intensity window applied before per-slice min-max normalisation.
+  intensity_clip: [-125.0, 275.0]
+
+  # Frame size (256x128) and class colours are bound at import time and are
+  # deliberately not settable here -- see veinseg/config.py.
+
+training:
+  epochs: 30
+  batch_size: 1            # pinned: one sample is a whole sequence of varying
+                           # length, so sequences cannot be collated
+  lr: 1.0e-3
+  eta_min: 1.0e-6
+  val_groups: [Cube15]     # held out whole, by root name, so a sequence and its
+                           # augmentations cannot straddle the split
+  checkpoint_dir: checkpoints
+
+loss:
+  # Combined objective: focal_tversky_weight * focal_tversky + dice_weight * dice
+  focal_tversky_weight: 0.2
+  dice_weight: 0.8
+
+detector:
+  epochs: 5
+  batch_size: 32
+  lr: 1.0e-3
+  eta_min: 1.0e-6
+  val_fraction: 0.2
+  empty_threshold: 0.5     # frames scoring >= this are dropped by `filter`
+  checkpoint: checkpoints/empty_detector.pth
+
+augment:
+  num_augments: 5          # augmented copies per sequence
+  copy_originals: true     # also copy the un-augmented sequences across, so the
+                           # training root matches the one results came from
+  seed: null               # null = nondeterministic; set an int to reproduce
+
+inference:
+  checkpoint: checkpoints/model_best.pth
+  upsample: 4              # logit upsampling before argmax
+
+fit:
+  degree: 4                # polynomial degree for the centreline
+  report: radii_report.txt
+
+logging:
+  figures_dir: figures     # analyze/ plot output
+  vis_dir: vis_outputs     # visualize/ 3-panel PNGs (checked in)
