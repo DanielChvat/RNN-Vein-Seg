@@ -91,7 +91,9 @@ def stage_fit(args) -> None:
 def stage_analyze(args) -> None:
     from . import analysis
 
-    analysis.intensity_correlation(args.processed_dir, figures_dir=args.figures_dir)
+    analysis.intensity_correlation(
+        args.processed_dir, show=args.show, figures_dir=args.figures_dir
+    )
 
 
 def stage_viewer(args) -> None:
@@ -211,6 +213,11 @@ def build_parser() -> argparse.ArgumentParser:
     opts.add_argument("--seed", type=int, help="augmentation seed")
     opts.add_argument("--upsample", type=int, help="logit upsampling before argmax")
     opts.add_argument("--degree", type=int, help="polynomial degree for vessel fitting")
+    opts.add_argument(
+        "--show",
+        action="store_true",
+        help="open interactive plot windows in 'analyze' (blocks; needs a display)",
+    )
     opts.add_argument("--clean", action="store_true", help="delete the processed dir when done")
 
     return parser
@@ -256,17 +263,26 @@ def resolve(args: argparse.Namespace, data: dict) -> argparse.Namespace:
     if args.no_copy_originals:
         augment.copy_originals = False
 
+    # Which paths the user actually typed. Captured before the fill below, while
+    # "unset" is still distinguishable.
+    explicit = {dest for dest in _PATH_ARGS if getattr(args, dest) is not None}
+
     overrides = config.resolve_paths(data)
     for dest, attr in _PATH_ARGS.items():
         if getattr(args, dest) is None:
             setattr(args, dest, overrides.get(attr, getattr(config, attr)))
 
-    # Both live inside the checkpoint dir by default, so they follow
-    # --checkpoint-dir unless they were named outright.
-    for dest, attr in (("seg_checkpoint", "SEG_CHECKPOINT"), ("detector_checkpoint", "DETECTOR_CHECKPOINT")):
-        default = getattr(config, attr)
-        if attr not in overrides and getattr(args, dest) == default:
-            setattr(args, dest, args.checkpoint_dir / default.name)
+    # Both checkpoints live inside the checkpoint dir, so they track it. The
+    # explicit-CLI check is what keeps `--checkpoint-dir X` working: the shipped
+    # config.yaml pins inference.checkpoint, and without this that YAML value
+    # would beat the flag and send predict looking in the default directory
+    # while train wrote to X.
+    for dest, attr in (("seg_checkpoint", "SEG_CHECKPOINT"),
+                       ("detector_checkpoint", "DETECTOR_CHECKPOINT")):
+        if dest in explicit:
+            continue  # named outright -- nothing outranks that
+        if "checkpoint_dir" in explicit or attr not in overrides:
+            setattr(args, dest, args.checkpoint_dir / getattr(config, attr).name)
 
     if args.upsample is None:
         args.upsample = config.get_key(data, "inference", "upsample", 4)

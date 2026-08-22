@@ -125,8 +125,10 @@ filtered_data_augmented/         <SEQ>/ and <SEQ>_AUG_N/  -- what training reads
 Frames are resized to 256x128 (`ORIGINAL_SIZE` 1024x512 downscaled by 4),
 windowed to [-125, 275] and min-max normalised per slice.
 
-Augmentation draws **one seed per sequence**, so a warp is consistent across all
-frames of that sequence. Do not reseed per frame.
+Augmentation draws **one seed per sequence**, but the warp is *not* consistent
+across the frames of that sequence — `A.Compose` advances its RNG on every call.
+This is inherited from the pre-refactor script and affects all existing
+augmented data. See the `veinseg/augment.py` docstring.
 
 `augment` copies the un-augmented sequences across as well as writing the
 `_AUG_N` copies. The old script wrote only the `_AUG_N` copies even though the

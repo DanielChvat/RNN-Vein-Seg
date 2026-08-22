@@ -1,8 +1,26 @@
-"""Stage 4: sequence-consistent 2D augmentation.
+"""Stage 4: 2D augmentation, one seed per augmented *sequence*.
 
-One seed is drawn per augmented *sequence*, not per frame, so the same
-geometric warp is applied to every frame of a sequence and temporal continuity
-survives augmentation. Do not reseed per frame.
+KNOWN ISSUE -- the warp is NOT temporally consistent, despite what this module
+used to claim. ``A.Compose(seed=n)`` seeds its RNG once at construction and then
+*advances* it on every ``__call__``, so each frame of a sequence receives a
+different random warp. Measured on a synthetic sequence: the vessel centroid
+moves several pixels frame to frame, and HorizontalFlip fires on some frames but
+not others.
+
+This is inherited, not introduced -- ``augment2d_data_per_sequence.py`` built
+one ``Compose`` per sequence and called it per frame in exactly the same way,
+and reproduces the same drift. Every existing augmented sequence in
+``filtered_data_augmented/`` was generated this way.
+
+It matters because the model is recurrent: decorrelating consecutive frames
+attacks the temporal structure the ConvGRU exists to exploit.
+
+The fix is to rebuild the pipeline per frame from the same sequence seed
+(verified to produce identical warps). It is not applied here because it would
+change what training sees and invalidate comparison with existing results, and
+because freezing the whole pipeline also freezes GaussNoise and brightness --
+photometric jitter probably *should* vary per frame. Splitting geometric
+(per-sequence) from photometric (per-frame) is the real fix.
 """
 
 from __future__ import annotations
@@ -20,6 +38,10 @@ from . import config
 
 def build_pipeline(seed: int) -> A.Compose:
     """Albumentations pipeline, deterministic for a given ``seed``.
+
+    Deterministic across *runs*, not across calls: the first call with a given
+    seed always yields the same warp, but the second call yields a different
+    one. See the module docstring.
 
     ``ColorJitter`` used to sit alongside ``RandomBrightnessContrast`` with
     ``saturation=0, hue=0``. On single-channel data that made it a second,

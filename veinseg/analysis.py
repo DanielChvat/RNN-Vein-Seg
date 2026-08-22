@@ -18,14 +18,25 @@ def intensity_correlation(
     data_dir: os.PathLike | str = config.PROCESSED_DIR,
     tsne_components: int = 2,
     pca_components: int = 50,
-    show: bool = True,
+    show: bool = False,
     figures_dir: os.PathLike | str | None = config.FIGURES_DIR,
 ) -> None:
     """Correlate mean pixel intensity with mask emptiness, then embed with t-SNE.
 
     Both plots are written to ``figures_dir`` (pass ``None`` to skip). They used
     to be shown and then lost, so a headless run produced nothing at all.
+
+    ``show`` defaults to False because this runs as a pipeline stage: a blocking
+    ``plt.show()`` on a machine with no display hangs the whole run forever. Pass
+    ``--show`` to get the interactive windows back.
     """
+    import matplotlib
+
+    if not show:
+        # Must precede the pyplot import, or the interactive backend is already
+        # chosen. visualize.py does the same thing for the same reason.
+        matplotlib.use("Agg")
+
     import matplotlib.pyplot as plt
     from scipy.stats import pearsonr
     from sklearn.decomposition import PCA
