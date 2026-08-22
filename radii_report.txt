@@ -1,0 +1,460 @@
+ICA2_frame0.npz: None
+ICA_frame0.npz: None
+OA_frame0.npz: 50.2030
+ICA2_frame1.npz: 1.6901
+ICA_frame1.npz: None
+OA_frame1.npz: None
+ICA2_frame2.npz: 1.8167
+ICA_frame2.npz: None
+OA_frame2.npz: None
+ICA2_frame3.npz: 2.4171
+ICA_frame3.npz: 10.7437
+OA_frame3.npz: None
+ICA2_frame4.npz: 2.6131
+ICA_frame4.npz: None
+OA_frame4.npz: None
+ICA2_frame5.npz: 1.8306
+ICA_frame5.npz: None
+OA_frame5.npz: None
+ICA2_frame6.npz: 2.8473
+ICA_frame6.npz: None
+OA_frame6.npz: None
+ICA2_frame7.npz: 2.6805
+ICA_frame7.npz: None
+OA_frame7.npz: None
+ICA2_frame8.npz: 2.2124
+ICA_frame8.npz: 2.7358
+OA_frame8.npz: None
+ICA2_frame9.npz: 2.7481
+ICA_frame9.npz: 0.5945, 1.0194
+OA_frame9.npz: None
+ICA2_frame10.npz: 0.9681
+ICA_frame10.npz: 0.5803
+OA_frame10.npz: None
+ICA2_frame11.npz: 0.9672
+ICA_frame11.npz: 0.5227
+OA_frame11.npz: None
+ICA2_frame12.npz: 0.9439
+ICA_frame12.npz: 0.5483, 3.8465
+OA_frame12.npz: None
+ICA2_frame13.npz: 0.9403
+ICA_frame13.npz: 0.5230, 3.2992
+OA_frame13.npz: 0.4473
+ICA2_frame14.npz: 0.9748, 2.8330
+ICA_frame14.npz: 0.5825, 1.3858
+OA_frame14.npz: 0.6157
+ICA2_frame15.npz: 1.4207
+ICA_frame15.npz: 0.6208, 0.8975
+OA_frame15.npz: 0.5752
+ICA2_frame16.npz: 1.4473
+ICA_frame16.npz: 0.7621, 0.9750
+OA_frame16.npz: 0.7116
+ICA2_frame17.npz: 1.5300
+ICA_frame17.npz: 0.9287, 1.9608
+OA_frame17.npz: 0.8890
+ICA2_frame18.npz: 1.4713
+ICA_frame18.npz: 0.8613, 0.6859, 34.7679
+OA_frame18.npz: 1.1422
+ICA2_frame19.npz: 1.5774
+ICA_frame19.npz: 0.8842, 0.6567, 5.0306
+OA_frame19.npz: 0.8284
+ICA2_frame20.npz: 1.7236
+ICA_frame20.npz: 0.7421, 1.8161
+OA_frame20.npz: 0.8317
+ICA2_frame21.npz: 1.1756
+ICA_frame21.npz: 0.4085, 2.2657
+OA_frame21.npz: 0.9909
+ICA2_frame22.npz: 1.7406
+ICA_frame22.npz: 0.4115, 1.8939
+OA_frame22.npz: 1.0694
+ICA2_frame23.npz: 1.8998
+ICA_frame23.npz: 0.4016, 1.8673
+OA_frame23.npz: 1.1280
+ICA2_frame24.npz: 2.0599
+ICA_frame24.npz: 0.5773, 7.0315
+OA_frame24.npz: 0.8438
+ICA2_frame25.npz: 2.1046
+ICA_frame25.npz: 0.5939, 3.4903
+OA_frame25.npz: 1.0728
+ICA2_frame26.npz: 1.9907
+ICA_frame26.npz: 0.6769, 3.5819
+OA_frame26.npz: 0.9059
+ICA2_frame27.npz: 1.2482
+ICA_frame27.npz: 0.6857, 1.6555
+OA_frame27.npz: 0.8352
+ICA2_frame28.npz: 1.8701
+ICA_frame28.npz: 0.7765, 7.3641
+OA_frame28.npz: 0.7456
+ICA2_frame29.npz: 2.6269, 0.6656
+ICA_frame29.npz: 0.8010, 6.5356
+OA_frame29.npz: 0.7382
+ICA_frame30.npz: 1.3923, 3.8088, 4.3697
+OA_frame30.npz: 0.7149
+ICA_frame31.npz: 1.1463, 1.9899
+OA_frame31.npz: 0.7221
+ICA_frame32.npz: 1.5092, 1.4345
+OA_frame32.npz: 0.6765
+ICA_frame33.npz: 1.6807, 1.2298, 4.1513
+OA_frame33.npz: 0.6966
+ICA_frame34.npz: 1.8774, 1.3152, 3.6229
+OA_frame34.npz: 0.7492
+ICA_frame35.npz: 2.6539, 1.3657, 3.7265
+OA_frame35.npz: 0.8510
+ICA_frame36.npz: 3.4392, 1.1604
+OA_frame36.npz: 0.8024
+ICA_frame37.npz: 2.0014
+OA_frame37.npz: 0.7887
+ICA_frame38.npz: 1.0736, 4.4464
+OA_frame38.npz: 0.7022
+ICA_frame39.npz: 0.7336
+OA_frame39.npz: 0.6478
+ICA_frame40.npz: 0.8194, 6.7735
+OA_frame40.npz: 0.6179
+ICA_frame41.npz: 0.8146, 1.5718
+OA_frame41.npz: 0.6435
+ICA_frame42.npz: 0.8689
+OA_frame42.npz: 0.7172
+ICA_frame43.npz: 0.6187
+OA_frame43.npz: 0.8005
+ICA_frame44.npz: 0.7014
+OA_frame44.npz: 1.3331
+ICA_frame45.npz: 0.3506
+OA_frame45.npz: 1.4687
+ICA_frame46.npz: 0.2843
+OA_frame46.npz: 3.6362
+ICA_frame47.npz: 1.5991
+OA_frame47.npz: 3.9147, 6.4975
+ICA_frame48.npz: 0.4869, 0.9319
+OA_frame48.npz: 4.7341, 3.9357, 3.6037
+ICA_frame49.npz: 0.6061
+OA_frame49.npz: 4.6941, 4.4452
+ICA_frame50.npz: 0.6837
+OA_frame50.npz: 4.3399, 5.5055
+ICA_frame51.npz: 0.3429
+ICA_frame52.npz: 0.3450
+ICA_frame53.npz: 0.4747
+ICA_frame54.npz: 0.4215
+ICA_frame55.npz: 0.4338
+ICA_frame56.npz: 0.7450
+Cube15_frame0.npz: 0.2400
+Cube15_frame1.npz: 0.1930
+Cube15_frame2.npz: 0.2795
+Cube15_frame3.npz: 0.2706
+Cube15_frame4.npz: 0.3027
+Cube15_frame5.npz: 0.3198
+Cube15_frame6.npz: 0.2917
+Cube15_frame7.npz: 0.2575
+Cube15_frame8.npz: 0.2790
+Cube15_frame9.npz: 0.1617
+Cube15_frame10.npz: 21.7515
+Cube15_frame11.npz: 0.1807
+Cube15_frame12.npz: 0.1147
+Cube15_frame13.npz: 0.0950
+Cube15_frame14.npz: 59.5013
+Cube15_frame15.npz: 0.1029
+Cube15_frame16.npz: 0.1056
+Cube15_frame17.npz: 0.2028
+Cube15_frame18.npz: 0.1153
+Cube15_frame19.npz: 0.3206
+Cube15_frame20.npz: 0.1915
+Cube15_frame21.npz: 0.2402
+Cube15_frame22.npz: 0.2034
+Cube15_frame23.npz: 0.2579
+Cube15_frame24.npz: 0.3618
+Cube15_frame25.npz: 0.3660, 0.9567
+Cube15_frame26.npz: 0.2735
+Cube15_frame27.npz: 0.3670
+Cube15_frame28.npz: 0.4078
+Cube15_frame29.npz: 0.4466
+Cube15_frame30.npz: 0.3743
+Cube15_frame31.npz: 0.6054, 0.4489
+Cube15_frame32.npz: 0.4576
+Cube15_frame33.npz: 0.3957
+Cube15_frame34.npz: 0.4526
+Cube15_frame35.npz: 0.4307
+Cube15_frame36.npz: 0.3255
+Cube15_frame37.npz: 0.2557
+Cube15_frame38.npz: 0.2232
+Cube15_frame39.npz: 0.3414
+Cube15_frame40.npz: 0.7299
+Cube15_frame41.npz: 0.3349
+Cube15_frame42.npz: 0.3969
+Cube15_frame43.npz: 0.3594
+Cube15_frame44.npz: 0.2765
+Cube15_frame45.npz: 0.2445
+Cube15_frame46.npz: 0.2638
+Cube15_frame47.npz: 0.2252
+Cube15_frame48.npz: 0.2081
+Cube15_frame49.npz: 0.2276
+Cube15_frame50.npz: 0.4344
+Cube15_frame51.npz: 0.1939
+Cube15_frame52.npz: None
+Cube15_frame53.npz: 0.2644
+Cube15_frame54.npz: 0.1934
+Cube15_frame55.npz: 0.3127
+Cube15_frame56.npz: 0.1452
+Cube15_frame57.npz: 0.1451
+Cube16_frame0.npz: 0.2725
+Cube16_frame1.npz: 0.2630
+Cube16_frame2.npz: 0.2759
+Cube16_frame3.npz: 0.2920
+Cube16_frame4.npz: 0.3064
+Cube16_frame5.npz: 0.2668
+Cube16_frame6.npz: 0.3211
+Cube16_frame7.npz: 0.3569
+Cube16_frame8.npz: 0.1425
+Cube16_frame9.npz: 0.2057
+Cube16_frame10.npz: 0.1885
+Cube16_frame11.npz: 0.4094
+Cube16_frame12.npz: 0.1402
+Cube16_frame13.npz: 0.4379
+Cube16_frame14.npz: 0.5903
+Cube16_frame15.npz: 1.2623
+Cube16_frame16.npz: 0.2497
+Cube16_frame17.npz: 0.1344
+Cube16_frame18.npz: 0.3312, 0.7165
+Cube16_frame19.npz: 0.4499, 4.4383
+Cube16_frame20.npz: 0.2414
+Cube16_frame21.npz: 0.2578
+Cube16_frame22.npz: 0.2735
+Cube16_frame23.npz: 0.3994, 0.6309
+Cube16_frame24.npz: 0.6475
+Cube16_frame25.npz: 0.4385
+Cube16_frame26.npz: 0.3409
+Cube16_frame27.npz: 0.3491
+Cube16_frame28.npz: 0.4735
+Cube16_frame29.npz: 0.3251
+Cube16_frame30.npz: 0.9787, 0.3848
+Cube16_frame31.npz: 0.4328
+Cube16_frame32.npz: 0.2157, 0.4388
+Cube16_frame33.npz: 0.4492, 0.3483
+Cube16_frame34.npz: 0.5100, 1.0604
+Cube16_frame35.npz: 0.4850
+Cube16_frame36.npz: 0.1252
+Cube16_frame37.npz: 0.3372
+Cube16_frame38.npz: 0.1900
+Cube16_frame39.npz: 0.3923, 5.8413
+Cube16_frame40.npz: 0.2103, 1.0842
+Cube16_frame41.npz: 0.5742
+Cube16_frame42.npz: 0.1996
+Cube16_frame43.npz: 0.1424
+Cube16_frame44.npz: 0.2084
+Cube16_frame45.npz: 0.1692
+Cube16_frame46.npz: None
+Cube16_frame47.npz: 0.1135
+Cube16_frame48.npz: 0.1192
+Cube16_frame49.npz: 0.1257
+Cube16_frame50.npz: 0.1143
+Cube16_frame51.npz: None
+Cube16_frame52.npz: 0.0781
+Cube95_frame0.npz: 3.5440
+Cube95_frame1.npz: 2.7492
+Cube95_frame2.npz: 1.5745
+Cube95_frame3.npz: 1.9100
+Cube95_frame4.npz: 1.2435
+Cube95_frame5.npz: 1.0178
+Cube95_frame6.npz: 1.1242
+Cube95_frame7.npz: 1.0478
+Cube95_frame8.npz: 0.9465
+Cube95_frame9.npz: 0.9163
+Cube95_frame10.npz: 0.8070
+Cube95_frame11.npz: 0.8155
+Cube95_frame12.npz: 0.7806
+Cube95_frame13.npz: 0.7266
+Cube95_frame14.npz: 0.7346
+Cube95_frame15.npz: 0.6598
+Cube95_frame16.npz: 0.6829
+Cube95_frame17.npz: 0.6667
+Cube95_frame18.npz: 0.6941
+Cube95_frame19.npz: 0.7337
+Cube95_frame20.npz: 0.7344
+Cube95_frame21.npz: 0.7953
+Cube95_frame22.npz: 0.8028
+Cube95_frame23.npz: 0.8027
+Cube95_frame24.npz: 0.8422
+Cube95_frame25.npz: 0.6872
+Cube95_frame26.npz: 0.8863
+Cube95_frame27.npz: 0.9822
+Cube95_frame28.npz: 0.9333
+Cube95_frame29.npz: 1.2026
+Cube95_frame30.npz: 1.0505
+Cube95_frame31.npz: 0.9737
+Cube95_frame32.npz: 1.0331
+Cube95_frame33.npz: 0.7250
+Cube95_frame34.npz: 1.6593
+Cube95_frame35.npz: 1.1140
+Cube95_frame36.npz: 1.5337
+Cube95_frame37.npz: 1.1492
+Cube95_frame38.npz: 0.7831
+Cube95_frame39.npz: 0.6343
+Cube95_frame40.npz: 0.6295
+Cube95_frame41.npz: 0.6145
+Cube95_frame42.npz: 0.7731
+Cube95_frame43.npz: 0.7211
+Cube95_frame44.npz: 0.6957
+Cube95_frame45.npz: 0.7135
+Cube95_frame46.npz: 0.7768
+Cube95_frame47.npz: 0.8371
+Cube95_frame48.npz: 0.8301
+Cube95_frame49.npz: 0.8679
+Cube95_frame50.npz: 1.0712
+Cube95_frame51.npz: 1.2430
+Cube95_frame52.npz: 0.8276
+Cube95_frame53.npz: 0.8658
+Cube95_frame54.npz: 0.7716
+Cube95_frame55.npz: 0.8277
+Cube95_frame56.npz: 0.9878
+Cube95_frame57.npz: 4.3864
+Cube95_frame58.npz: 0.9680
+Cube95_frame59.npz: 3.9193
+Cube95_frame60.npz: 2.9526
+Cube95_frame61.npz: 2.5749
+Cube95_frame62.npz: 2.0485
+Cube95_frame63.npz: 1.0224
+Cube95_frame64.npz: 1.0367
+Cube95_frame65.npz: 0.9645
+Cube95_frame66.npz: None
+Cube95_frame67.npz: 0.6931
+Cube95_frame68.npz: 0.7220
+Cube95_frame69.npz: 0.7179
+Cube95_frame70.npz: None
+Cube95_frame71.npz: None
+Cube95_frame72.npz: None
+Cube95_frame73.npz: 4.6767
+Cube95_frame74.npz: None
+Cube95_frame75.npz: None
+Cube95_frame76.npz: None
+Cube95_frame77.npz: None
+Cube95_frame78.npz: None
+Cube95_frame79.npz: None
+Cube95_frame80.npz: None
+Cube95_frame81.npz: 1.3078
+Cube95_frame82.npz: None
+Cube95_frame83.npz: 1.3655
+Cube95_frame84.npz: 2.5280
+Cube95_frame85.npz: None
+Cube95_frame86.npz: None
+Cube95_frame87.npz: 2.8884
+Cube95_frame88.npz: 4.5438
+Cube95_frame89.npz: 13.0562
+Cube95_frame90.npz: 9.5563
+Cube95_frame91.npz: 16.2838
+Cube95_frame92.npz: 15.6404
+Cube95_frame93.npz: 14.4763
+Cube95_frame94.npz: 8.9121
+Cube95_frame95.npz: 7.5919
+Cube95_frame96.npz: 6.5646
+Cube95_frame97.npz: 6.1635
+Cube95_frame98.npz: 7.0105
+Cube95_frame99.npz: 8.1984
+Cube95_frame100.npz: 7.2986
+Cube95_frame101.npz: 7.6290
+Cube95_frame102.npz: 8.9584
+Cube95_frame103.npz: 7.5427
+Cube95_frame104.npz: 8.2648
+Cube95_frame105.npz: 7.2024
+Cube95_frame106.npz: 6.8975
+Cube95_frame107.npz: 6.8743
+Cube95_frame108.npz: 7.4234
+Cube95_frame109.npz: 6.8537
+Cube95_frame110.npz: 8.2596
+Cube95_frame111.npz: 9.8519
+Cube96_frame0.npz: 1.6646
+Cube96_frame1.npz: 0.9359
+Cube96_frame2.npz: 1.0129
+Cube96_frame3.npz: 2.0401
+Cube96_frame4.npz: 5.3317
+Cube96_frame5.npz: 1.8210
+Cube96_frame6.npz: 1.5051
+Cube96_frame7.npz: 1.2549
+Cube96_frame8.npz: 1.3306
+Cube96_frame9.npz: 1.2481
+Cube96_frame10.npz: 1.1474
+Cube96_frame11.npz: 1.1032
+Cube96_frame12.npz: 1.0490
+Cube96_frame13.npz: 0.9353
+Cube96_frame14.npz: 0.8993
+Cube96_frame15.npz: 0.8066
+Cube96_frame16.npz: 0.8038
+Cube96_frame17.npz: 0.7527
+Cube96_frame18.npz: 0.7136
+Cube96_frame19.npz: 0.6920
+Cube96_frame20.npz: 0.6942
+Cube96_frame21.npz: 0.6986
+Cube96_frame22.npz: 0.8152
+Cube96_frame23.npz: 0.8283
+Cube96_frame24.npz: 0.8770
+Cube96_frame25.npz: 0.9518
+Cube96_frame26.npz: 0.9599
+Cube96_frame27.npz: 0.9039
+Cube96_frame28.npz: 0.7881
+Cube96_frame29.npz: 0.7703
+Cube96_frame30.npz: 0.6942
+Cube96_frame31.npz: 0.6438
+Cube96_frame32.npz: 0.5851
+Cube96_frame33.npz: 0.5151
+Cube96_frame34.npz: 0.4488
+Cube96_frame35.npz: 0.3957
+Cube96_frame36.npz: 0.3651
+Cube96_frame37.npz: 0.3254
+Cube96_frame38.npz: 0.3241
+Cube96_frame39.npz: 0.3016
+Cube96_frame40.npz: 0.2776
+Cube96_frame41.npz: 0.3425
+Cube96_frame42.npz: 0.3928
+Cube96_frame43.npz: 1.0542
+Cube96_frame44.npz: 0.6358
+Cube96_frame45.npz: 0.6748
+Cube96_frame46.npz: 0.8692
+Cube96_frame47.npz: 0.9283
+Cube96_frame48.npz: 0.8071
+Cube96_frame49.npz: 0.8422
+Cube96_frame50.npz: 0.8618
+Cube96_frame51.npz: 0.8318
+Cube96_frame52.npz: 0.7809
+Cube96_frame53.npz: 1.2196
+Cube96_frame54.npz: 1.2505
+Cube96_frame55.npz: 1.0884
+Cube96_frame56.npz: 0.8768
+Cube96_frame57.npz: 0.9304
+Cube96_frame58.npz: 0.7469
+Cube96_frame59.npz: 0.6877
+Cube96_frame60.npz: None
+Cube96_frame61.npz: None
+Cube96_frame62.npz: None
+Cube96_frame63.npz: None
+Cube96_frame64.npz: None
+Cube96_frame65.npz: None
+Cube96_frame66.npz: None
+Cube96_frame67.npz: None
+Cube96_frame68.npz: None
+Cube96_frame69.npz: 4.9398
+Cube96_frame70.npz: None
+Cube96_frame71.npz: None
+Cube96_frame72.npz: None
+Cube96_frame73.npz: 6.9709
+Cube96_frame74.npz: None
+Cube96_frame75.npz: 3.2383
+Cube96_frame76.npz: None
+Cube96_frame77.npz: None
+Cube96_frame78.npz: 13.0650
+Cube96_frame79.npz: 1.6899
+Cube96_frame80.npz: 0.3333
+Cube96_frame81.npz: 4.1381
+Cube96_frame82.npz: 3.1033
+Cube96_frame83.npz: None
+Cube96_frame84.npz: None
+Cube96_frame85.npz: 7.2929
+Cube96_frame86.npz: None
+Cube96_frame87.npz: 5.1477
+Cube96_frame88.npz: 2.5604
+Cube96_frame89.npz: 3.0948
+Cube96_frame90.npz: 1.8067
+Cube96_frame91.npz: None
+Cube96_frame92.npz: 2.4729
+Cube96_frame93.npz: 4.9526
+Cube96_frame94.npz: 4.8879
+Cube96_frame95.npz: 4.6654
+Cube96_frame96.npz: None
+Cube96_frame97.npz: 4.2437
+Cube96_frame98.npz: 4.3622
