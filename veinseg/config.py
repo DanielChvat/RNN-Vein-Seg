@@ -40,8 +40,8 @@ SEG_CHECKPOINT = CHECKPOINT_DIR / "model_best.pth"
 DETECTOR_CHECKPOINT = CHECKPOINT_DIR / "empty_detector.pth"
 
 NPZ_OUTPUT_DIR = ROOT / "npz_outputs"
-VIS_OUTPUT_DIR = ROOT / "vis_outputs"
 FIGURES_DIR = ROOT / "figures"
+VIS_OUTPUT_DIR = FIGURES_DIR / "vis_outputs"
 RADII_REPORT = ROOT / "radii_report.txt"
 
 # ----------------------------------------------------------------------

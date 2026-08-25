@@ -73,4 +73,4 @@ fit:
 
 logging:
   figures_dir: figures     # analyze/ plot output
-  vis_dir: vis_outputs     # visualize/ 3-panel PNGs (checked in)
+  vis_dir: figures/vis_outputs   # visualize/ 3-panel PNGs (checked in)

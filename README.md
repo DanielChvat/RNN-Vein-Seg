@@ -16,14 +16,14 @@ python -m veinseg <stage> [options]
 ```
 configs/config.yaml   pipeline settings (optional -- see Configuration)
 data/                 raw/, processed/, filtered/   -- gitignored, regenerated
-figures/              analyze/ plot output
+figures/              analyze/ plots, vis_outputs/, fitted_polynomial_vis/, paper/
 checkpoints/          model weights -- gitignored
 veinseg/              the package
 ```
 
-Three data roots sit outside `data/` because they are checked into git:
-`filtered_data_augmented/` (what `train` reads), `npz_outputs/` (what `predict`
-writes) and `vis_outputs/` (what `visualize` writes).
+Two data roots sit outside `data/` because they are checked into git:
+`filtered_data_augmented/` (what `train` reads) and `npz_outputs/` (what
+`predict` writes). What `visualize` writes lives in `figures/vis_outputs/`.
 
 ## Stages
 
@@ -35,7 +35,7 @@ writes) and `vis_outputs/` (what `visualize` writes).
 | `augment` | `data/filtered/` | `filtered_data_augmented/` |
 | `train` | `filtered_data_augmented/` | `checkpoints/model_{best,last}.pth` |
 | `predict` | `data/filtered/` | `npz_outputs/<seq>_slice_<N>.npz` |
-| `visualize` | `data/filtered/` | `vis_outputs/<seq>_frame<NNN>.png` |
+| `visualize` | `data/filtered/` | `figures/vis_outputs/<seq>_frame<NNN>.png` |
 | `benchmark` | `data/filtered/` | per-frame latency to stdout |
 | `fit` | `npz_outputs/` | `radii_report.txt` |
 | `analyze` | `data/processed/` | `figures/{intensity_histogram,tsne_empty_masks}.png` |

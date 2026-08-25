@@ -153,7 +153,7 @@ def build_parser() -> argparse.ArgumentParser:
             "  augment          data/filtered/  -> filtered_data_augmented/\n"
             "  train            filtered_data_augmented/ -> checkpoints/\n"
             "  predict          data/filtered/  -> npz_outputs/\n"
-            "  visualize        data/filtered/  -> vis_outputs/\n"
+            "  visualize        data/filtered/  -> figures/vis_outputs/\n"
             "  benchmark        per-frame inference latency\n"
             "  fit              npz_outputs/    -> radii_report.txt\n"
             "  analyze          intensity/t-SNE study of empty masks -> figures/\n"
